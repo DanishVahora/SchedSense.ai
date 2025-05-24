@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const IntentRecognizer = require('./intentRecognizer');
-const ContextAnalysisService = require('./ContextAnalysisService .js'); // Adjust the filename if needed
+const ContextAnalysisService = require('./ContextAnalysisService.js'); // Adjust the filename if needed
 const app = express();
 const port = 3000;
 
@@ -26,7 +26,7 @@ class MockUserHistoryProvider {
                 bookingDate: "2025-05-13T10:00:00.000Z"
             },
             {
-                id: "apt_2", 
+                id: "apt_2",
                 serviceType: "consultant",
                 provider: "Sarah Wilson",
                 datetime: "2025-05-15T15:30:00.000Z",
