@@ -1,596 +1,683 @@
-import React, { useState, useEffect } from 'react';
-import type { JSX } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Bell, 
+  Mic, 
   Calendar, 
-  Clock,
-  User,
-  Plus,
-  Settings,
-  LogOut,
-  ChevronDown,
-  AlertTriangle,
+  Brain,
+  ChevronRight,
+  Play,
+  Star,
+  ArrowRight,
+  Route,
   CheckCircle,
-  Timer,
+  MessageSquare,
+  Clock,
   MapPin,
+  User,
   Phone,
-  Mail,
-  Eye,
-  MoreVertical,
-  TrendingUp,
-  Users,
-  CalendarCheck,
-  AlertCircle,
-  Activity
+  type LucideIcon
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { motion } from 'framer-motion';
+import { TypeAnimation } from 'react-type-animation';
+import SiriWave from 'react-siriwave';
 
-const ProviderDashboard = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  type Slot = {
-    id: number;
-    time: string;
-    client: string | null;
-    service: string | null;
-    status: string;
-    duration: number;
-    phone?: string;
-    delay?: string;
-  };
-  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: 'booking', message: 'New appointment booked for 3:00 PM', time: '2 min ago', unread: true },
-    { id: 2, type: 'delay', message: 'Traffic delay alert for John Smith', time: '5 min ago', unread: true },
-    { id: 3, type: 'cancellation', message: 'Appointment cancelled - Sarah Johnson', time: '15 min ago', unread: false },
-    { id: 4, type: 'reminder', message: 'Upcoming appointment in 30 minutes', time: '30 min ago', unread: false },
-  ]);
+const LandingPage = () => {
+  const [selectedFeature, setSelectedFeature] = useState<number>(0);
+  const [isListening, setIsListening] = useState(false);
+  const [waveAmplitude, setWaveAmplitude] = useState(1);
+  const [demoStep, setDemoStep] = useState(0);
+  const [currentDemo, setCurrentDemo] = useState('voice');
+  const [waveformData, setWaveformData] = useState<number[]>(Array(32).fill(0.5)); // 32 bars, initial height 0.5
 
-  // Mock schedule data
-  const todaySchedule = [
-    { id: 1, time: '09:00', client: 'John Smith', service: 'Dental Checkup', status: 'confirmed', duration: 60, phone: '+1 234-567-8900' },
-    { id: 2, time: '10:30', client: 'Sarah Johnson', service: 'Teeth Cleaning', status: 'pending', duration: 45, phone: '+1 234-567-8901' },
-    { id: 3, time: '11:30', client: null, service: null, status: 'available', duration: 30 },
-    { id: 4, time: '12:00', client: 'Mike Wilson', service: 'Root Canal', status: 'confirmed', duration: 90, phone: '+1 234-567-8902' },
-    { id: 5, time: '14:00', client: 'Emily Davis', service: 'Consultation', status: 'delay', duration: 30, phone: '+1 234-567-8903', delay: '15 min traffic delay' },
-    { id: 6, time: '15:00', client: 'Tom Brown', service: 'Filling', status: 'confirmed', duration: 60, phone: '+1 234-567-8904' },
-    { id: 7, time: '16:30', client: null, service: null, status: 'available', duration: 30 },
-    { id: 8, time: '17:00', client: 'Lisa White', service: 'Checkup', status: 'pending', duration: 45, phone: '+1 234-567-8905' },
-  ];
-
-  // Update current time
+  // Simulate waveform data for the hero section
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
+    const interval = setInterval(() => {
+      setWaveformData(Array.from({ length: 32 }, () => Math.random() * 0.7 + 0.3));
+    }, 120);
+    return () => clearInterval(interval);
   }, []);
 
-  interface StatusColorMap {
-    [key: string]: string;
-  }
-
-  type SlotStatus = 'confirmed' | 'pending' | 'delay' | 'available' | string;
-
-  const getStatusColor = (status: SlotStatus): string => {
-    const statusColors: StatusColorMap = {
-      confirmed: 'bg-green-500/30 border-green-400/60 text-green-200',
-      pending: 'bg-yellow-500/30 border-yellow-400/60 text-yellow-200',
-      delay: 'bg-red-500/30 border-red-400/60 text-red-200',
-      available: 'bg-gray-500/30 border-gray-400/60 text-gray-200',
+  type Feature = {
+    icon: LucideIcon;
+    title: string;
+    desc: string;
+    demoType: string;
+    details: {
+      title: string;
+      description: string;
+      points: string[];
+      demo: any;
     };
-    return statusColors[status] ?? 'bg-gray-500/30 border-gray-400/60 text-gray-200';
   };
 
-  interface StatusIconProps {
-    status: string;
-  }
+  const features: Feature[] = [
+    {
+      icon: Mic,
+      title: "Voice-First Booking",
+      desc: "Natural voice commands for seamless scheduling",
+      demoType: "voice",
+      details: {
+        title: "Revolutionary Voice Booking",
+        description: "Schedule appointments as naturally as having a conversation",
+        points: [
+          "Natural language processing understands context and intent",
+          "Multiple language support for global accessibility", 
+          "Voice confirmation and feedback for clarity",
+          "Hands-free booking perfect for multitasking"
+        ],
+        demo: {
+          conversation: [
+            { type: 'user', text: '"Book me a dentist appointment next Tuesday at 2 PM"' },
+            { type: 'ai', text: 'I found Dr. Smith available at 2 PM next Tuesday. Shall I book this for you?' },
+            { type: 'user', text: '"Yes, please confirm"' },
+            { type: 'ai', text: 'Perfect! Your appointment is confirmed. I\'ll send you a reminder.' }
+          ]
+        }
+      }
+    },
+    {
+      icon: Brain,
+      title: "AI Understanding", 
+      desc: "Smart scheduling powered by advanced AI",
+      demoType: "ai",
+      details: {
+        title: "Intelligent Scheduling Assistant",
+        description: "Our AI learns your preferences and optimizes schedules",
+        points: [
+          "Learns from your booking patterns and preferences",
+          "Suggests optimal time slots based on history",
+          "Handles complex scheduling conflicts automatically",
+          "Predictive scheduling for recurring appointments"
+        ],
+        demo: {
+          analysis: [
+            { label: "Intent Recognition", value: "Book Appointment", confidence: 98 },
+            { label: "Time Extraction", value: "Next Tuesday 2PM", confidence: 95 },
+            { label: "Service Type", value: "Dental Checkup", confidence: 92 },
+            { label: "Location Preference", value: "Downtown Clinic", confidence: 88 }
+          ]
+        }
+      }
+    },
+    {
+      icon: Route,
+      title: "Smart Travel Planning",
+      desc: "Intelligent travel time calculations", 
+      demoType: "travel",
+      details: {
+        title: "Real-Time Travel Intelligence",
+        description: "Never be late with smart travel planning",
+        points: [
+          "Real-time traffic monitoring and updates",
+          "Automatic buffer time calculations",
+          "Multi-modal transport options", 
+          "Weather-aware scheduling adjustments"
+        ],
+        demo: {
+          route: {
+            from: "Your Location",
+            to: "Downtown Dental Clinic",
+            distance: "12.5 km",
+            normalTime: "18 min",
+            currentTime: "25 min", 
+            delay: "Heavy traffic detected",
+            suggestion: "Leave 10 minutes earlier"
+          }
+        }
+      }
+    }
+  ];
 
-  const getStatusIcon = (status: string): JSX.Element => {
-    switch (status) {
-      case 'confirmed': return <CheckCircle className="w-4 h-4 text-green-400" />;
-      case 'pending': return <Timer className="w-4 h-4 text-yellow-400" />;
-      case 'delay': return <AlertTriangle className="w-4 h-4 text-red-400" />;
-      case 'available': return <Plus className="w-4 h-4 text-gray-400" />;
-      default: return <Clock className="w-4 h-4 text-blue-400" />;
+  // Enhanced wave amplitude simulation for dramatic effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Generate much higher amplitude values for dramatic waves
+      const baseAmplitude = isListening ? 4 : 1;
+      const randomMultiplier = Math.random() * 5 + 3; // Range: 3-8
+      setWaveAmplitude(baseAmplitude * randomMultiplier);
+    }, 120); // Even faster updates
+    
+    return () => clearInterval(interval);
+  }, [isListening]);
+
+  // More dramatic listening state toggle
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsListening(prev => !prev);
+    }, 2500);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Demo step progression
+  useEffect(() => {
+    if (selectedFeature === 0) { // Voice demo
+      const interval = setInterval(() => {
+        setDemoStep(prev => (prev + 1) % features[0].details.demo.conversation.length);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedFeature]);
+
+  const renderFeatureDemo = () => {
+    const feature = features[selectedFeature];
+    
+    switch (feature.demoType) {
+      case 'voice':
+        return (
+          <div className="space-y-4">
+            {/* Voice Conversation Demo */}
+            <div className="bg-black/40 rounded-lg p-6 h-64 overflow-y-auto">
+              <h4 className="text-sm font-medium text-gray-400 mb-4">Live Voice Conversation</h4>
+              <div className="space-y-3">
+                {feature.details.demo.conversation.map((msg, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ 
+                      opacity: index <= demoStep ? 1 : 0.3,
+                      y: index <= demoStep ? 0 : 20
+                    }}
+                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-xs px-4 py-2 rounded-lg ${
+                      msg.type === 'user' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-700 text-gray-100'
+                    }`}>
+                      <div className="flex items-center space-x-2 mb-1">
+                        {msg.type === 'user' ? (
+                          <User className="w-3 h-3" />
+                        ) : (
+                          <Brain className="w-3 h-3" />
+                        )}
+                        <span className="text-xs font-medium">
+                          {msg.type === 'user' ? 'You' : 'SchedSense AI'}
+                        </span>
+                      </div>
+                      <p className="text-sm">{msg.text}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Voice Waveform Display */}
+            <div className="bg-black/40 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-gray-400">Voice Input Analysis</span>
+                <Badge className={`text-xs ${isListening ? 'bg-green-500' : 'bg-gray-500'}`}>
+                  {isListening ? 'Listening' : 'Idle'}
+                </Badge>
+              </div>
+              <div className="h-12 bg-black/60 rounded flex items-center justify-center">
+                <div className="flex items-center space-x-1">
+                  {[...Array(20)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1 bg-green-400 rounded-full"
+                      animate={{
+                        height: isListening 
+                          ? [4, Math.random() * 24 + 8, 4]
+                          : [4, 6, 4]
+                      }}
+                      transition={{
+                        duration: 0.3,
+                        repeat: Infinity,
+                        delay: i * 0.05
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'ai':
+        return (
+          <div className="space-y-4">
+            {/* AI Analysis Dashboard */}
+            <div className="bg-black/40 rounded-lg p-6">
+              <h4 className="text-sm font-medium text-gray-400 mb-4">AI Processing Dashboard</h4>
+              <div className="space-y-3">
+                {feature.details.demo.analysis.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between p-3 bg-black/60 rounded"
+                  >
+                    <div>
+                      <span className="text-sm text-gray-300">{item.label}</span>
+                      <p className="text-white font-medium">{item.value}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-gray-400">Confidence</div>
+                      <div className="text-green-400 font-bold">{item.confidence}%</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Processing Animation */}
+            <div className="bg-black/40 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-3">
+                <Brain className="w-4 h-4 text-blue-400" />
+                <span className="text-sm text-gray-400">Neural Processing</span>
+              </div>
+              <div className="space-y-2">
+                {['Natural Language Processing', 'Intent Classification', 'Entity Extraction', 'Response Generation'].map((process, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex items-center space-x-3"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.2 }}
+                  >
+                    <motion.div
+                      className="w-2 h-2 bg-green-400 rounded-full"
+                      animate={{ scale: [1, 1.5, 1] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: index * 0.2 }}
+                    />
+                    <span className="text-xs text-gray-300">{process}</span>
+                    <CheckCircle className="w-3 h-3 text-green-400 ml-auto" />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'travel':
+        return (
+          <div className="space-y-4">
+            {/* Travel Route Display */}
+            <div className="bg-black/40 rounded-lg p-6">
+              <h4 className="text-sm font-medium text-gray-400 mb-4">Smart Route Planning</h4>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div>
+                    <p className="text-sm text-gray-300">From</p>
+                    <p className="text-white font-medium">{feature.details.demo.route.from}</p>
+                  </div>
+                </div>
+                
+                <div className="border-l-2 border-dashed border-gray-600 ml-1.5 h-8"></div>
+                
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div>
+                    <p className="text-sm text-gray-300">To</p>
+                    <p className="text-white font-medium">{feature.details.demo.route.to}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Travel Analytics */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-black/40 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Clock className="w-4 h-4 text-blue-400" />
+                  <span className="text-xs text-gray-400">Travel Time</span>
+                </div>
+                <p className="text-white font-bold">{feature.details.demo.route.currentTime}</p>
+                <p className="text-xs text-gray-500">Usually {feature.details.demo.route.normalTime}</p>
+              </div>
+              
+              <div className="bg-black/40 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-2">
+                  <MapPin className="w-4 h-4 text-green-400" />
+                  <span className="text-xs text-gray-400">Distance</span>
+                </div>
+                <p className="text-white font-bold">{feature.details.demo.route.distance}</p>
+              </div>
+            </div>
+
+            {/* Traffic Alert */}
+            <motion.div
+              className="bg-orange-500/20 border border-orange-500/40 rounded-lg p-4"
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                <span className="text-orange-300 font-medium text-sm">Traffic Alert</span>
+              </div>
+              <p className="text-orange-100 text-sm">{feature.details.demo.route.delay}</p>
+              <p className="text-orange-200 text-xs mt-1">💡 {feature.details.demo.route.suggestion}</p>
+            </motion.div>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
-  const unreadCount = notifications.filter(n => n.unread).length;
-  const todayStats = {
-    total: todaySchedule.filter(slot => slot.client).length,
-    pending: todaySchedule.filter(slot => slot.status === 'pending').length,
-    delays: todaySchedule.filter(slot => slot.status === 'delay').length,
-    confirmed: todaySchedule.filter(slot => slot.status === 'confirmed').length
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
-      {/* Enhanced Background Effects */}
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Background Effects */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(139,69,233,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
         <div className="absolute inset-0" style={{
           backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
+          backgroundSize: '30px 30px'
         }} />
       </div>
 
       <div className="relative z-10">
-        {/* Header Bar with Better Contrast */}
-        <header className="bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-4 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <motion.div 
-                className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-white to-purple-400 bg-clip-text text-transparent"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                SchedSense AI
-              </motion.div>
-              <motion.div 
-                className="text-gray-200 font-medium"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                Welcome, <span className="text-blue-300">Dr. Sarah Chen</span>
-              </motion.div>
-            </div>
+        <Navbar />
 
-            <div className="flex items-center space-x-4">
-              {/* Current Time with Better Visibility */}
+        {/* Hero Section */}
+        <div className="relative px-6 py-20 text-center">
+          <div className="relative z-10 max-w-4xl mx-auto">
+            <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-all duration-300">
+              🚀 Powered by Advanced AI Agents
+            </Badge>
+            
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
+                Schedule by
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                Voice, {' '}
+                <TypeAnimation
+                  sequence={[
+                    'Powered by AI',
+                    1000,
+                    'Enhanced by AI',
+                    1000,
+                    'Perfected by AI',
+                    1000,
+                  ]}
+                  wrapper="span"
+                  speed={50}
+                  className="text-red inline-block"
+                  repeat={Infinity}
+                  cursor={true}
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, #ff4d4d, #f9f9f9)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: '0 0 20px rgba(255,77,77,0.3)'
+                  }}
+                />
+              </span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+              The world's first voice-first appointment scheduler with intelligent travel management. 
+              Just speak naturally, and let our AI agents handle the rest.
+            </p>
+
+            {/* Interactive Voice Demo */}
+            <div className="relative w-full max-w-2xl mx-auto mb-16">
               <motion.div 
-                className="hidden md:flex items-center space-x-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                className="glass-card p-8 rounded-xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
               >
-                <Clock className="w-4 h-4 text-blue-300" />
-                <span className="font-mono text-white font-medium">
-                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </motion.div>
-
-              {/* Enhanced Notifications */}
-              <motion.div 
-                className="relative"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="relative bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
-                >
-                  <Bell className="w-5 h-5" />
-                  {unreadCount > 0 && (
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 500 }}
-                    >
-                      {unreadCount}
-                    </motion.div>
-                  )}
-                </Button>
-              </motion.div>
-
-              {/* Enhanced Profile Dropdown */}
-              <motion.div 
-                className="relative"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
-                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                >
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
-
-                <AnimatePresence>
-                  {showProfileDropdown && (
-                    <motion.div
-                      className="absolute right-0 mt-2 w-48 bg-black/80 backdrop-blur-xl rounded-lg border border-white/30 overflow-hidden shadow-2xl"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/20 border-0">
-                        <Settings className="w-4 h-4 mr-2" />
-                        Settings
-                      </Button>
-                      <Button variant="ghost" className="w-full justify-start text-red-300 hover:bg-red-500/20 border-0">
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Logout
-                      </Button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </div>
-          </div>
-        </header>
-
-        <div className="flex">
-          {/* Main Content */}
-          <div className="flex-1 p-6">
-            {/* Enhanced Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[
-                { title: 'Total Appointments', value: todayStats.total, icon: CalendarCheck, gradient: 'from-blue-500 to-cyan-600', shadow: 'shadow-blue-500/25' },
-                { title: 'Pending Requests', value: todayStats.pending, icon: Timer, gradient: 'from-yellow-500 to-orange-600', shadow: 'shadow-yellow-500/25' },
-                { title: 'Delay Alerts', value: todayStats.delays, icon: AlertTriangle, gradient: 'from-red-500 to-pink-600', shadow: 'shadow-red-500/25' },
-                { title: 'Confirmed', value: todayStats.confirmed, icon: CheckCircle, gradient: 'from-green-500 to-emerald-600', shadow: 'shadow-green-500/25' },
-              ].map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05, rotateY: 5 }}
-                    style={{ perspective: 1000 }}
+                <div className="text-center mb-6">
+                  <motion.h3 
+                    className="text-2xl font-medium text-white/90"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                   >
-                    <Card className={`bg-white/10 border-white/30 hover:bg-white/15 transition-all duration-300 cursor-pointer backdrop-blur-xl ${stat.shadow} group`}>
-                      <CardContent className="p-6 relative overflow-hidden">
-                        {/* Gradient Background */}
-                        <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-10 group-hover:opacity-20 transition-opacity`} />
-                        
-                        <div className="relative z-10">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg group-hover:scale-110 transition-transform`}>
-                              <Icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="text-right">
-                              <motion.div 
-                                className="text-3xl font-bold text-white"
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.2 + index * 0.1, type: "spring" }}
-                              >
-                                {stat.value}
-                              </motion.div>
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-300 font-medium">{stat.title}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
+                    We are here to listens You !!
+                  </motion.h3>
+                </div>
 
-            {/* Enhanced Schedule View */}
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Calendar/Schedule with Better Contrast */}
-              <div className="lg:col-span-2">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                <div className="h-24 relative overflow-hidden rounded-lg bg-black/30">
+                  <motion.div 
+                    className="flex items-center justify-center h-full gap-[2px]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    {waveformData.map((height, index) => (
+                      <motion.div
+                        key={index}
+                        className="h-full w-[6px] bg-white/50" // Increased width
+                        initial={{ scaleY: 0 }}
+                        animate={{ 
+                          scaleY: height,
+                          backgroundColor: `rgba(255, 255, 255, ${height * 0.9})`,
+                        }}
+                        transition={{
+                          duration: 0.2, // Faster animation
+                          ease: "easeOut",
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          repeatDelay: Math.random() * 0.2 // Random delay for more natural look
+                        }}
+                        style={{
+                          transformOrigin: "bottom",
+                          margin: "0 1px" // Add small gap between bars
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+                </div>
+
+                <motion.p 
+                  className="text-center mt-6 text-gray-400"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <Card className="bg-white/10 border-white/30 backdrop-blur-xl shadow-2xl">
-                    <CardHeader className="border-b border-white/20">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-xl font-bold text-white flex items-center">
-                          <Calendar className="w-5 h-5 mr-2 text-blue-400" />
-                          Today's Schedule
-                        </CardTitle>
-                        <div className="flex items-center space-x-2">
-                          <Badge className="bg-blue-500/30 text-blue-200 border border-blue-400/50 backdrop-blur-sm">
-                            {new Date().toLocaleDateString('en-US', { 
-                              weekday: 'long', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
-                          </Badge>
-                          <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg">
-                            <Plus className="w-4 h-4 mr-1" />
-                            Block Time
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-                        {todaySchedule.map((slot, index) => (
-                          <motion.div
-                            key={slot.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className={`p-4 rounded-lg border cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${getStatusColor(slot.status)} backdrop-blur-sm`}
-                            onClick={() => setSelectedSlot(slot)}
-                            whileHover={{ x: 5 }}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="flex items-center space-x-2">
-                                  {getStatusIcon(slot.status)}
-                                  <span className="font-mono text-sm text-white font-medium">{slot.time}</span>
-                                </div>
-                                <div>
-                                  {slot.client ? (
-                                    <>
-                                      <p className="font-semibold text-white">{slot.client}</p>
-                                      <p className="text-sm text-gray-200">{slot.service}</p>
-                                      {slot.delay && (
-                                        <motion.p 
-                                          className="text-xs text-red-200 mt-1 bg-red-500/20 px-2 py-1 rounded"
-                                          initial={{ opacity: 0 }}
-                                          animate={{ opacity: 1 }}
-                                        >
-                                          ⚠️ {slot.delay}
-                                        </motion.p>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <p className="text-gray-300 italic">Available Slot</p>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Badge variant="outline" className="text-xs bg-white/20 text-white border-white/40">
-                                  {slot.duration}min
-                                </Badge>
-                                <MoreVertical className="w-4 h-4 text-gray-300" />
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                  Simplifying appointment scheduling with artificial intelligence
+                </motion.p>
+              </motion.div>
+            </div>
 
-                {/* Enhanced Quick Actions */}
-                <motion.div
-                  className="mt-6"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <Card className="bg-white/10 border-white/30 backdrop-blur-xl">
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-white">Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Button className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 justify-start shadow-lg">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Unavailable Slot
-                        </Button>
-                        <Button variant="outline" className="border-white/40 bg-white/10 text-white hover:bg-white/20 justify-start backdrop-blur-sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          View All Appointments
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
-
-              {/* Enhanced Notifications Feed */}
-              <div className="lg:col-span-1">
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Card className="bg-white/10 border-white/30 backdrop-blur-xl shadow-2xl">
-                    <CardHeader className="border-b border-white/20">
-                      <CardTitle className="text-lg font-semibold text-white flex items-center">
-                        <Activity className="w-5 h-5 mr-2 text-purple-400" />
-                        Recent Activity
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-4 max-h-80 overflow-y-auto custom-scrollbar">
-                        {notifications.map((notification, index) => (
-                          <motion.div
-                            key={notification.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className={`p-3 rounded-lg border transition-all duration-300 hover:bg-white/15 cursor-pointer backdrop-blur-sm ${
-                              notification.unread 
-                                ? 'bg-white/15 border-white/40 shadow-lg' 
-                                : 'bg-white/5 border-white/20'
-                            }`}
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <div className="flex items-start space-x-3">
-                              <div className={`p-2 rounded-full ${
-                                notification.type === 'booking' ? 'bg-green-500/30' :
-                                notification.type === 'delay' ? 'bg-red-500/30' :
-                                notification.type === 'cancellation' ? 'bg-yellow-500/30' :
-                                'bg-blue-500/30'
-                              }`}>
-                                {notification.type === 'booking' && <CalendarCheck className="w-3 h-3 text-green-300" />}
-                                {notification.type === 'delay' && <AlertTriangle className="w-3 h-3 text-red-300" />}
-                                {notification.type === 'cancellation' && <AlertCircle className="w-3 h-3 text-yellow-300" />}
-                                {notification.type === 'reminder' && <Clock className="w-3 h-3 text-blue-300" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm text-white font-medium leading-relaxed">{notification.message}</p>
-                                <p className="text-xs text-gray-300 mt-1">{notification.time}</p>
-                              </div>
-                              {notification.unread && (
-                                <motion.div 
-                                  className="w-3 h-3 bg-blue-400 rounded-full shadow-lg"
-                                  animate={{ opacity: [0.5, 1, 0.5] }}
-                                  transition={{ duration: 2, repeat: Infinity }}
-                                />
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                      <Button variant="outline" className="w-full mt-4 border-white/40 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
-                        View All Notifications
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Enhanced Performance Widget */}
-                <motion.div
-                  className="mt-6"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <Card className="bg-white/10 border-white/30 backdrop-blur-xl">
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-white flex items-center">
-                        <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
-                        Performance
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-300">Completion Rate</span>
-                          <span className="text-white font-semibold">85%</span>
-                        </div>
-                        <div className="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden">
-                          <motion.div 
-                            className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full shadow-lg"
-                            initial={{ width: 0 }}
-                            animate={{ width: '85%' }}
-                            transition={{ delay: 0.8, duration: 1 }}
-                          />
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-300">On-Time Rate</span>
-                          <span className="text-white font-semibold">92%</span>
-                        </div>
-                        <div className="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden">
-                          <motion.div 
-                            className="bg-gradient-to-r from-blue-500 to-cyan-600 h-3 rounded-full shadow-lg"
-                            initial={{ width: 0 }}
-                            animate={{ width: '92%' }}
-                            transition={{ delay: 1, duration: 1 }}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <Button className="group bg-white text-black hover:bg-gray-100 px-8 py-4 text-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                Start Free Trial
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold transition-all duration-300">
+                <Play className="mr-2 w-5 h-5" />
+                Watch Full Demo
+              </Button>
             </div>
           </div>
         </div>
-
-        {/* Enhanced Selected Slot Modal */}
-        <AnimatePresence>
-          {selectedSlot && (
-            <motion.div
-              className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedSlot(null)}
-            >
-              <motion.div
-                className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/30 p-6 max-w-md w-full shadow-2xl"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Appointment Details</h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setSelectedSlot(null)}
-                    className="text-gray-300 hover:text-white hover:bg-white/20"
-                  >
-                    ×
-                  </Button>
-                </div>
-
-                {selectedSlot.client ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                        <User className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-white font-semibold">{selectedSlot.client}</p>
-                        <p className="text-gray-300 text-sm">{selectedSlot.service}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-2 p-3 bg-white/10 rounded-lg">
-                        <Clock className="w-4 h-4 text-blue-400" />
-                        <span className="text-white text-sm">{selectedSlot.time}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 p-3 bg-white/10 rounded-lg">
-                        <Timer className="w-4 h-4 text-green-400" />
-                        <span className="text-white text-sm">{selectedSlot.duration} min</span>
-                      </div>
-                    </div>
-
-                    {selectedSlot.phone && (
-                      <div className="flex items-center space-x-2 p-3 bg-white/10 rounded-lg">
-                        <Phone className="w-4 h-4 text-purple-400" />
-                        <span className="text-white text-sm">{selectedSlot.phone}</span>
-                      </div>
-                    )}
-
-                    {selectedSlot.delay && (
-                      <div className="p-3 bg-red-500/30 border border-red-400/60 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <AlertTriangle className="w-4 h-4 text-red-300" />
-                          <span className="text-red-200 text-sm">{selectedSlot.delay}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex space-x-2 pt-4">
-                      <Button className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700">
-                        Edit Appointment
-                      </Button>
-                      <Button variant="outline" className="flex-1 border-white/40 bg-white/10 text-white hover:bg-white/20">
-                        Contact Client
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-white mb-2">Available Time Slot</p>
-                    <p className="text-gray-300 text-sm mb-4">{selectedSlot.time} - {selectedSlot.duration} minutes</p>
-                    <Button className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700">
-                      Book Appointment
-                    </Button>
-                  </div>
-                )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* Interactive Features Demo Section */}
+      <section className="py-20 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
+              🚀 Live Feature Demonstrations
+            </h2>
+            <p className="text-gray-400 text-lg">Experience our AI capabilities in real-time</p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Feature Selection */}
+            <div className="space-y-4">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  className={`p-6 rounded-xl cursor-pointer transition-all duration-300 border ${
+                    selectedFeature === index 
+                      ? 'bg-white/10 border-white/30 shadow-lg' 
+                      : 'bg-white/5 border-white/10 hover:bg-white/8'
+                  }`}
+                  onClick={() => setSelectedFeature(index)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="flex items-start space-x-4">
+                    <div className={`p-3 rounded-lg transition-all ${
+                      selectedFeature === index 
+                        ? 'bg-white text-black shadow-lg' 
+                        : 'bg-white/10 text-white'
+                    }`}>
+                      <feature.icon className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-xl font-semibold mb-2 flex items-center">
+                        {feature.title}
+                        {selectedFeature === index && (
+                          <Badge className="ml-2 bg-green-500 text-white text-xs">LIVE DEMO</Badge>
+                        )}
+                      </h4>
+                      <p className="text-gray-400 mb-3">{feature.desc}</p>
+                      <div className="space-y-2">
+                        {feature.details.points.slice(0, 2).map((point, i) => (
+                          <div key={i} className="flex items-center space-x-2">
+                            <CheckCircle className="w-3 h-3 text-green-400" />
+                            <span className="text-sm text-gray-300">{point}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Demo Display */}
+            <div className="lg:sticky lg:top-6">
+              <motion.div
+                key={selectedFeature}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/5 rounded-2xl p-6 border border-white/10 backdrop-blur-xl"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    {features[selectedFeature].details.title}
+                  </h3>
+                  <Badge className="bg-blue-500 text-white">
+                    LIVE DEMO
+                  </Badge>
+                </div>
+                
+                <p className="text-gray-300 mb-6">
+                  {features[selectedFeature].details.description}
+                </p>
+
+                {/* Dynamic Demo Content */}
+                {renderFeatureDemo()}
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 px-6 bg-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Our AI agent ecosystem works seamlessly to handle every aspect of your appointment scheduling
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              { step: "01", title: "Speak Naturally", desc: "Just say what you want: 'Book me a 3pm haircut tomorrow'", icon: Mic },
+              { step: "02", title: "AI Understanding", desc: "Our Coordinator Agent processes your request using advanced NLP", icon: Brain },
+              { step: "03", title: "Smart Scheduling", desc: "Scheduler Agent checks availability and handles conflicts automatically", icon: Calendar },
+              { step: "04", title: "Confirmation", desc: "Get instant voice, SMS, and email confirmations", icon: CheckCircle }
+            ].map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <div key={index} className="relative">
+                  <Card className="bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 h-full">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl font-bold text-white/20 mb-4">{step.step}</div>
+                      <div className="w-16 h-16 mx-auto mb-4 bg-white rounded-2xl flex items-center justify-center">
+                        <Icon className="w-8 h-8 text-black" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-white mb-3">{step.title}</h3>
+                      <p className="text-gray-400">{step.desc}</p>
+                    </CardContent>
+                  </Card>
+                  {index < 3 && (
+                    <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
+                      <ChevronRight className="w-8 h-8 text-white/30" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-16 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Loved by Businesses
+          </h2>
+          
+          <Card className="bg-white/5 border-white/10 p-8 md:p-12">
+            <CardContent>
+              <div className="flex justify-center mb-6">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-6 h-6 text-white fill-current" />
+                ))}
+              </div>
+              <blockquote className="text-2xl md:text-3xl text-white mb-8 leading-relaxed">
+                "VoiceSched.ai transformed our salon booking process. Clients love the voice booking, 
+                and the travel delay management has reduced no-shows by 80%."
+              </blockquote>
+              <div className="text-gray-400">
+                <p className="font-semibold">Sarah Chen</p>
+                <p>Owner, Elite Hair Studio</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-gradient-to-b from-white/5 to-transparent">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Ready to Transform Your Business?
+          </h2>
+          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+            Join thousands of businesses already using VoiceSched.ai to streamline their appointment scheduling
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <Button className="group bg-white text-black hover:bg-gray-100 px-12 py-6 text-xl font-semibold transition-all duration-300 transform hover:scale-105">
+              Start Your Free Trial
+              <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10 px-12 py-6 text-xl font-semibold transition-all duration-300">
+              Schedule Demo
+            </Button>
+          </div>
+          
+          <p className="text-gray-500 mt-8">No credit card required • 14-day free trial • Cancel anytime</p>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };
 
-export default ProviderDashboard;
+export default LandingPage;
