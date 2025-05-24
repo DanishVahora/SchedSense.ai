@@ -22,7 +22,7 @@ import { TypeAnimation } from 'react-type-animation';
 // Update the generateWaveformData function
 const generateWaveformData = (length: number) => {
   return Array.from({ length }, () => 
-    Math.sin(Math.random() * Math.PI * 2) * 0.9 + 0.1 // Increased amplitude
+    Math.sin(Math.random() * Math.PI * 2) * 0.9 + 0.4 // Increased amplitude
   );
 };
 
@@ -208,36 +208,108 @@ const LandingPage = () => {
                   </motion.h3>
                 </div>
 
-                <div className="h-24 relative overflow-hidden rounded-lg bg-black/30">
-                  <motion.div 
-                    className="flex items-center justify-center h-full gap-[2px]"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                {/* Siri-like Animation Container */}
+                <div className="h-32 relative overflow-hidden rounded-lg bg-black/30 flex items-center justify-center">
+                  {/* Central Orb */}
+                  <motion.div
+                    className="relative w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 360],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    style={{
+                      filter: 'blur(1px)',
+                      boxShadow: '0 0 40px rgba(139, 69, 233, 0.6)'
+                    }}
+                  />
+                  
+                  {/* Animated Rings */}
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute rounded-full border-2 border-white/20"
+                      style={{
+                        width: `${100 + (i * 40)}px`,
+                        height: `${100 + (i * 40)}px`,
+                      }}
+                      animate={{
+                        scale: [1, 1.1, 1],
+                        opacity: [0.3, 0.1, 0.3],
+                      }}
+                      transition={{
+                        duration: 2 + (i * 0.5),
+                        repeat: Infinity,
+                        delay: i * 0.2,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  ))}
+
+                  {/* Floating Particles */}
+                  {[...Array(8)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-2 h-2 rounded-full bg-white/40"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                      }}
+                      animate={{
+                        x: [0, Math.cos(i * 45 * Math.PI / 180) * 60],
+                        y: [0, Math.sin(i * 45 * Math.PI / 180) * 60],
+                        opacity: [0, 1, 0],
+                        scale: [0, 1, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: i * 0.1,
+                        ease: "easeOut"
+                      }}
+                    />
+                  ))}
+
+                  {/* Pulsing Background Effect */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg"
+                    animate={{
+                      background: [
+                        "radial-gradient(circle, rgba(139,69,233,0.1) 0%, transparent 70%)",
+                        "radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%)",
+                        "radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 70%)",
+                        "radial-gradient(circle, rgba(139,69,233,0.1) 0%, transparent 70%)",
+                      ]
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                  
+                  {/* Voice Activity Indicator */}
+                  <motion.div
+                    className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
+                    animate={{
+                      opacity: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
                   >
-                    {waveformData.map((height, index) => (
-                      <motion.div
-                        key={index}
-                        className="h-full w-[3px] bg-white/50" // Increased width
-                        initial={{ scaleY: 0 }}
-                        animate={{ 
-                          scaleY: height,
-                          backgroundColor: `rgba(255, 255, 255, ${height * 0.9})`,
-                        }}
-                        transition={{
-                          duration: 0.2, // Faster animation
-                          ease: "easeOut",
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          repeatDelay: Math.random() * 0.2 // Random delay for more natural look
-                        }}
-                        style={{
-                          transformOrigin: "bottom",
-                          margin: "0 1px" // Add small gap between bars
-                        }}
-                      />
-                    ))}
+                    <div className="flex items-center space-x-1">
+                      <div className="w-1 h-1 bg-white/60 rounded-full" />
+                      <div className="w-1 h-1 bg-white/60 rounded-full" />
+                      <div className="w-1 h-1 bg-white/60 rounded-full" />
+                    </div>
                   </motion.div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
                 </div>
 
                 <motion.p 

@@ -212,6 +212,42 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.3);
   }
+
+  /* Siri-like animation utilities */
+  .siri-orb {
+    background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+    animation: siri-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes siri-pulse {
+    0%, 100% { 
+      transform: scale(1);
+      filter: blur(1px) brightness(1);
+    }
+    50% { 
+      transform: scale(1.1);
+      filter: blur(2px) brightness(1.2);
+    }
+  }
+
+  .siri-particle {
+    animation: siri-float 2s ease-out infinite;
+  }
+
+  @keyframes siri-float {
+    0% {
+      opacity: 0;
+      transform: scale(0) translate(0, 0);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1) translate(var(--x), var(--y));
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0) translate(var(--x), var(--y));
+    }
+  }
 }
 
 @keyframes shine {
@@ -278,5 +314,5 @@ html {
 
 /* Add smooth wave animation */
 .wavesurfer-region {
-  transition: all 0.3s ease;
+  transition: all 0.8s ease;
 }
