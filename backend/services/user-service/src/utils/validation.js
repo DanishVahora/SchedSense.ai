@@ -5,12 +5,14 @@ const registerSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
     firstName: Joi.string().min(2).max(50).optional(),
-    lastName: Joi.string().min(2).max(50).optional()
+    lastName: Joi.string().min(2).max(50).optional(),
+    role: Joi.string().valid('customer').required()
 });
 
 const loginSchema = Joi.object({
     email: Joi.string().email().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    role: Joi.string().valid('customer').required()
 });
 
 const updateUserSchema = Joi.object({

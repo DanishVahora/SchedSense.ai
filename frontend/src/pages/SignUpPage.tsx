@@ -7,34 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  User, 
-  Store,  
-  Clock, 
-  Bell,
-  Camera,
-  Upload,
-  CheckCircle,
-  Building,
-  Users,
-} from 'lucide-react';
+import { User, Store, CheckCircle, Building, Users, Clock, Upload } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
 const SignupPage = () => {
   const [userType, setUserType] = useState<'customer' | 'provider'>('customer');
   const [formData, setFormData] = useState({
-    // Customer fields
-    fullName: '',
+    username: '',
     email: '',
     password: '',
-    phoneNumber: '',
-    timeZone: '',
-    notificationChannels: [] as string[],
-    profilePhoto: null as File | null,
-    defaultLanguage: '',
-    defaultServiceType: '',
-    
-    // Service Provider fields
+    firstName: '',
+    lastName: '',
     businessName: '',
     contactPersonName: '',
     physicalAddress: '',
@@ -43,11 +26,18 @@ const SignupPage = () => {
     bufferTime: '',
     minimumNoticeTime: '',
     businessLicense: null as File | null,
-    paymentDetails: ''
+    paymentDetails: '',
+    phoneNumber: '',
+    timeZone: '',
+    notificationChannels: [] as string[],
   });
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileUpload = (field: string, file: File | null) => {
+    setFormData(prev => ({ ...prev, [field]: file }));
   };
 
   const handleNotificationChange = (channel: string, checked: boolean) => {
@@ -63,6 +53,48 @@ const SignupPage = () => {
       }));
     }
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { username, email, password, firstName, lastName } = formData;
+    
+    // Ensure all required fields are present
+    if (!username || !email || !password || !firstName || !lastName) {
+        console.error('All fields are required');
+        return;
+    }
+
+    console.log('Form data:', formData);
+
+    try {
+        const response = await fetch('http://localhost:3004/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username,
+                email,
+                password,
+                firstName,
+                lastName,
+                role: userType
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Registration failed:', errorData);
+            throw new Error('Registration failed');
+        }
+
+        const data = await response.json();
+        console.log('Registration successful:', data);
+        // Handle successful registration (e.g., redirect to login)
+    } catch (error) {
+        console.error('Error during registration:', error);
+    }
+};
 
   const addService = () => {
     setFormData(prev => ({
@@ -85,16 +117,6 @@ const SignupPage = () => {
       ...prev,
       servicesOffered: prev.servicesOffered.filter((_, i) => i !== index)
     }));
-  };
-
-  const handleFileUpload = (field: string, file: File | null) => {
-    setFormData(prev => ({ ...prev, [field]: file }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', { userType, ...formData });
-    // Handle form submission
   };
 
   return (
@@ -196,13 +218,13 @@ const SignupPage = () => {
                         
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                            <Label htmlFor="fullName" className="text-white">Full Name *</Label>
+                            <Label htmlFor="username" className="text-white">Username *</Label>
                             <Input
-                              id="fullName"
-                              value={formData.fullName}
-                              onChange={(e) => handleInputChange('fullName', e.target.value)}
+                              id="username"
+                              value={formData.username}
+                              onChange={(e) => handleInputChange('username', e.target.value)}
                               className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                              placeholder="Enter your full name"
+                              placeholder="Enter your username"
                               required
                             />
                           </div>
@@ -236,125 +258,36 @@ const SignupPage = () => {
                           </div>
                           
                           <div className="space-y-2">
-                            <Label htmlFor="phoneNumber" className="text-white">Phone Number *</Label>
+                            <Label htmlFor="first_name" className="text-white">First Name *</Label>
                             <Input
-                              id="phoneNumber"
-                              type="tel"
-                              value={formData.phoneNumber}
-                              onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                              id="firstName"
+                              value={formData.firstName}
+                              onChange={(e) => handleInputChange('firstName', e.target.value)}
                               className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                              placeholder="+1 (555) 123-4567"
+                              placeholder="Enter your first name"
                               required
                             />
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="timeZone" className="text-white">Time Zone *</Label>
-                          <Select onValueChange={(value) => handleInputChange('timeZone', value)}>
-                            <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                              <SelectValue placeholder="Select your time zone" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="EST">Eastern Standard Time (EST)</SelectItem>
-                              <SelectItem value="CST">Central Standard Time (CST)</SelectItem>
-                              <SelectItem value="MST">Mountain Standard Time (MST)</SelectItem>
-                              <SelectItem value="PST">Pacific Standard Time (PST)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Notification Preferences */}
-                      <div className="space-y-6 border-t border-white/10 pt-8">
-                        <h3 className="text-lg font-semibold text-white flex items-center">
-                          <Bell className="w-5 h-5 mr-2" />
-                          Notification Preferences
-                        </h3>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          {['SMS', 'Email', 'In-App', 'Voice'].map((channel) => (
-                            <div key={channel} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={channel}
-                                checked={formData.notificationChannels.includes(channel)}
-                                onCheckedChange={(checked) => handleNotificationChange(channel, checked as boolean)}
-                                className="border-white/20"
-                              />
-                              <Label htmlFor={channel} className="text-white text-sm">{channel}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Optional Information */}
-                      <div className="space-y-6 border-t border-white/10 pt-8">
-                        <h3 className="text-lg font-semibold text-white flex items-center">
-                          <Camera className="w-5 h-5 mr-2" />
-                          Optional Information
-                        </h3>
-                        
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <Label htmlFor="defaultLanguage" className="text-white">Default Language</Label>
-                            <Select onValueChange={(value) => handleInputChange('defaultLanguage', value)}>
-                              <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                                <SelectValue placeholder="Select language" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="en">English</SelectItem>
-                                <SelectItem value="es">Spanish</SelectItem>
-                                <SelectItem value="fr">French</SelectItem>
-                                <SelectItem value="de">German</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="defaultServiceType" className="text-white">Default Service Type</Label>
-                            <Select onValueChange={(value) => handleInputChange('defaultServiceType', value)}>
-                              <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                                <SelectValue placeholder="Select service type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="healthcare">Healthcare</SelectItem>
-                                <SelectItem value="beauty">Beauty & Wellness</SelectItem>
-                                <SelectItem value="professional">Professional Services</SelectItem>
-                                <SelectItem value="automotive">Automotive</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="profilePhoto" className="text-white">Profile Photo</Label>
-                          <div className="border border-white/20 border-dashed rounded-lg p-6 text-center bg-white/5">
-                            <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                            <p className="text-gray-400 mb-2">Click to upload or drag and drop</p>
-                            <Input
-                              id="profilePhoto"
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleFileUpload('profilePhoto', e.target.files?.[0] || null)}
-                              className="hidden"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              className="border-white/20 text-white hover:bg-white/10"
-                              onClick={() => document.getElementById('profilePhoto')?.click()}
-                            >
-                              Choose File
-                            </Button>
-                          </div>
+                          <Label htmlFor="lastName" className="text-white">Last Name *</Label>
+                          <Input
+                            id="lastName"
+                            value={formData.lastName}
+                            onChange={(e) => handleInputChange('lastName', e.target.value)}
+                            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                            placeholder="Enter your last name"
+                            required
+                          />
                         </div>
                       </div>
                     </>
                   ) : (
                     // Service Provider Registration Fields
                     <>
-                      {/* Business Information */}
-                      <div className="space-y-6">
+{/* Business Information */}
+<div className="space-y-6">
                         <h3 className="text-lg font-semibold text-white flex items-center">
                           <Building className="w-5 h-5 mr-2" />
                           Business Information
@@ -624,7 +557,7 @@ const SignupPage = () => {
                           </div>
                         </div>
                       </div>
-                    </>
+                      </>
                   )}
 
                   {/* Submit Button */}

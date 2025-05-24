@@ -17,7 +17,7 @@ const register = async (req, res) => {
             return res.status(400).json({ error: error.details[0].message });
         }
 
-        const { username, email, password, firstName, lastName } = value;
+        const { username, email, password, firstName, lastName,role } = value;
 
         // Check if user already exists
         const existingUser = await User.findByEmail(email);
@@ -40,7 +40,8 @@ const register = async (req, res) => {
             email,
             password: hashedPassword,
             firstName,
-            lastName
+            lastName,
+            role
         });
 
         // Generate token
