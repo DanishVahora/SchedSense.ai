@@ -24,7 +24,11 @@ app.post('/extract-intent', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.json({ message: 'AI Agent Service is running' });
+    res.json({ message: `AI Agent Service is running on ${port}` });
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'AI Agent Service is healthy' });
 });
 
 app.listen(port, () => {
