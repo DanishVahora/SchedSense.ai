@@ -3,11 +3,8 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and optional package-lock.json
-COPY package.json .
-COPY package-lock.json* ./
-
-# Install production dependencies
+# Install dependencies
+COPY package.json package-lock.json ./
 RUN npm install --production
 
 # Copy source files
