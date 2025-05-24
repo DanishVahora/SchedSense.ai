@@ -1,0 +1,61 @@
+services:
+  voice-service:
+    build: ./services/voice-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
+  ai-agent-service:
+    build: ./services/ai-agent-service
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+  booking-service:
+    build: ./services/booking-service
+    ports:
+      - "3002:3002"
+    networks:
+      - app-network
+  notification-service:
+    build: ./services/notification-service
+    ports:
+      - "3003:3003"
+    networks:
+      - app-network
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "3004:3004"
+    networks:
+      - app-network
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_PORT=80
+      - VOICE_SERVICE_HOST=voice-service
+      - VOICE_SERVICE_PORT=8000
+      - AI_AGENT_SERVICE_HOST=ai-agent-service
+      - AI_AGENT_SERVICE_PORT=3001
+      - BOOKING_SERVICE_HOST=booking-service
+      - BOOKING_SERVICE_PORT=3002
+      - NOTIFICATION_SERVICE_HOST=notification-service
+      - NOTIFICATION_SERVICE_PORT=3003
+      - USER_SERVICE_HOST=user-service
+      - USER_SERVICE_PORT=3004
+      - NGINX_LOG_LEVEL=info
+    depends_on:
+      - voice-service
+      - ai-agent-service
+      - booking-service
+      - notification-service
+      - user-service
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
