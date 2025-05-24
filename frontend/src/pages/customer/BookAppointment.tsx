@@ -20,6 +20,7 @@ import {
   Clock,
   User
 } from 'lucide-react';
+import SiriWave from 'react-siriwave';
 import WavEncoder from 'wav-encoder';
 
 interface RecordingSession {
@@ -40,12 +41,36 @@ const BookAppointment = () => {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  
+  // Add Siri wave states
+  const [waveAmplitude, setWaveAmplitude] = useState(0.1);
+  const [audioLevel, setAudioLevel] = useState(0);
 
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
-  // Fix: Use HTMLInputElement instead of Input component ref
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioContext = useRef<AudioContext | null>(null);
+  const analyser = useRef<AnalyserNode | null>(null);
+  const animationFrame = useRef<number | null>(null);
+
+  // Audio level monitoring for Siri wave
+  const monitorAudioLevel = () => {
+    if (!analyser.current) return;
+
+    const dataArray = new Uint8Array(analyser.current.frequencyBinCount);
+    analyser.current.getByteFrequencyData(dataArray);
+    
+    const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+    const normalizedLevel = average / 255;
+    
+    setAudioLevel(normalizedLevel);
+    setWaveAmplitude(normalizedLevel * 3 + 0.1); // Scale amplitude for visual effect
+    
+    if (isRecording) {
+      animationFrame.current = requestAnimationFrame(monitorAudioLevel);
+    }
+  };
 
   // Recording duration timer
   useEffect(() => {
@@ -87,7 +112,17 @@ const BookAppointment = () => {
             } 
         });
 
-        const mimeType = 'audio/webm'; // Use webm for recording
+        // Set up audio analysis for Siri wave
+        audioContext.current = new AudioContext();
+        const source = audioContext.current.createMediaStreamSource(stream);
+        analyser.current = audioContext.current.createAnalyser();
+        analyser.current.fftSize = 256;
+        source.connect(analyser.current);
+        
+        // Start monitoring audio level
+        monitorAudioLevel();
+
+        const mimeType = 'audio/webm';
         mediaRecorder.current = new MediaRecorder(stream, { mimeType });
         
         mediaRecorder.current.ondataavailable = (event) => {
@@ -99,9 +134,8 @@ const BookAppointment = () => {
         mediaRecorder.current.onstop = async () => {
             const audioBlob = new Blob(audioChunks.current, { type: mimeType });
             const arrayBuffer = await audioBlob.arrayBuffer();
-            const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
+            const audioBuffer = await audioContext.current!.decodeAudioData(arrayBuffer);
 
-            // Convert to WAV using wav-encoder
             const wavData = await WavEncoder.encode({
                 sampleRate: audioBuffer.sampleRate,
                 channelData: [audioBuffer.getChannelData(0)]
@@ -126,21 +160,35 @@ const BookAppointment = () => {
             
             stream.getTracks().forEach(track => track.stop());
             
+            // Clean up audio analysis
+            if (animationFrame.current) {
+              cancelAnimationFrame(animationFrame.current);
+            }
+            if (audioContext.current) {
+              audioContext.current.close();
+            }
+            setWaveAmplitude(0.1);
+            
             await processAudio(wavBlob, newRecording.id);
         };
 
-        mediaRecorder.current.start(1000); // Collect data every second
+        mediaRecorder.current.start(1000);
         setIsRecording(true);
     } catch (error) {
         console.error("Error starting recording:", error);
         setError("Unable to access microphone. Please check permissions.");
     }
-};
+  };
 
   const stopRecording = () => {
     if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
       mediaRecorder.current.stop();
       setIsRecording(false);
+      
+      // Clean up audio monitoring
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
     }
   };
 
@@ -149,13 +197,11 @@ const BookAppointment = () => {
     setUploadProgress(0);
 
     try {
-      // Convert to WAV if needed
       const wavBlob = await convertToWav(audioBlob);
       
       const formData = new FormData();
       formData.append('audio', wavBlob, 'recording.wav');
 
-      // Fix: Correct API endpoint based on your Python file
       const response = await fetch('http://localhost:8000/api/speech-to-text/', {
         method: 'POST',
         body: formData,
@@ -197,13 +243,9 @@ const BookAppointment = () => {
   };
 
   const convertToWav = async (audioBlob: Blob): Promise<Blob> => {
-    // If already WAV, return as is
     if (audioBlob.type === 'audio/wav') {
       return audioBlob;
     }
-
-    // For production, you might want to use a more robust conversion
-    // For now, we'll rename the blob type (most APIs can handle webm too)
     return new Blob([audioBlob], { type: 'audio/wav' });
   };
 
@@ -225,7 +267,7 @@ const BookAppointment = () => {
       audioBlob: file,
       transcript: '',
       timestamp: new Date(),
-      duration: 0, // We could calculate this if needed
+      duration: 0,
       status: 'processing'
     };
 
@@ -297,7 +339,7 @@ const BookAppointment = () => {
         )}
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Recording Controls */}
+          {/* Recording Controls with Siri Wave */}
           <Card className="bg-white/10 border-white/20 backdrop-blur-xl shadow-2xl">
             <CardHeader className="border-b border-white/10">
               <CardTitle className="flex items-center space-x-2 text-white">
@@ -306,6 +348,69 @@ const BookAppointment = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
+              
+              {/* Siri Wave Visualization */}
+              <div className="mb-6">
+                <div className="h-32 relative overflow-hidden rounded-lg bg-black/30 flex items-center justify-center">
+                  <div className="w-full h-full relative">
+                    <SiriWave
+                      theme="ios9"
+                      ratio={2}
+                      speed={0.2}
+                      amplitude={isRecording ? waveAmplitude : 0.1}
+                      frequency={6}
+                      color="#ffffff"
+                      cover={true}
+                      width={600}
+                      height={128}
+                      autostart={true}
+                      pixelDepth={0.02}
+                      lerpSpeed={0.01}
+                    />
+                    
+                    {/* Overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 pointer-events-none" />
+                    
+                    {/* Recording status indicator */}
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                      <Badge 
+                        variant="outline" 
+                        className={`${
+                          isRecording 
+                            ? 'bg-red-500/20 text-red-200 border-red-400/60' 
+                            : 'bg-gray-500/20 text-gray-200 border-gray-400/60'
+                        } px-3 py-1`}
+                      >
+                        {isRecording ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+                            <span className="font-medium">Recording: {formatDuration(recordingDuration)}</span>
+                          </div>
+                        ) : (
+                          <span className="font-medium">Ready to Record</span>
+                        )}
+                      </Badge>
+                    </div>
+
+                    {/* Audio level indicator */}
+                    {isRecording && (
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                        <div className="flex items-center space-x-1">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-1 rounded-full transition-all duration-100 ${
+                                audioLevel * 5 > i ? 'bg-white h-4' : 'bg-white/30 h-2'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Record Button */}
               <div className="text-center">
                 <Button
@@ -330,17 +435,6 @@ const BookAppointment = () => {
                     </>
                   )}
                 </Button>
-                
-                {isRecording && (
-                  <div className="mt-4">
-                    <Badge variant="outline" className="bg-red-500/20 text-red-200 border-red-400/60 px-3 py-1">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
-                        <span className="font-medium">Recording: {formatDuration(recordingDuration)}</span>
-                      </div>
-                    </Badge>
-                  </div>
-                )}
               </div>
 
               {/* File Upload */}
@@ -356,7 +450,6 @@ const BookAppointment = () => {
                     <Upload className="mr-2 h-4 w-4" />
                     Choose File
                   </Button>
-                  {/* Fix: Use regular HTML input instead of shadcn Input */}
                   <input
                     ref={fileInputRef}
                     type="file"

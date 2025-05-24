@@ -248,6 +248,34 @@
       transform: scale(0) translate(var(--x), var(--y));
     }
   }
+
+  /* Siri Wave custom styling */
+  .siri-wave-container {
+    position: relative;
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .siri-wave-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+      rgba(59,130,246,0.1) 0%, 
+      rgba(139,69,233,0.1) 50%, 
+      rgba(236,72,153,0.1) 100%);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  /* Audio level bars animation */
+  .audio-level-bar {
+    transition: all 0.1s ease-out;
+  }
+
 }
 
 @keyframes shine {
