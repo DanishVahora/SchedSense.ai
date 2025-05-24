@@ -1,47 +1,98 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Mic, 
   Calendar, 
-  Clock, 
-  Users, 
-  MapPin, 
-  Zap, 
-  Shield, 
   Brain,
   ChevronRight,
   Play,
   Star,
   ArrowRight,
-  Volume2,
-  Bot,
   Route,
-  CheckCircle
+  CheckCircle,
+  type LucideIcon
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 
+// Update the generateWaveformData function
 const generateWaveformData = (length: number) => {
   return Array.from({ length }, () => 
-    Math.sin(Math.random() * Math.PI * 2) * 0.5 + 0.5
+    Math.sin(Math.random() * Math.PI * 2) * 0.9 + 0.1 // Increased amplitude
   );
 };
 
 const LandingPage = () => {
-  const [isListening, setIsListening] = useState(false);
   const [currentFeature, setCurrentFeature] = useState(0);
   const [waveformData, setWaveformData] = useState(generateWaveformData(50));
+  const [selectedFeature, setSelectedFeature] = useState<number>(0);
   const animationRef = useRef<number | null>(null);
   
-  const features = [
-    { icon: Mic, title: "Voice-First Booking", desc: "Just speak naturally - 'Book me a 3pm haircut tomorrow'" },
-    { icon: Brain, title: "AI Understanding", desc: "Smart agents parse your intent and handle the details" },
-    { icon: Route, title: "Travel Intelligence", desc: "Monitors traffic and proactively reschedules delays" },
-    { icon: Zap, title: "Instant Confirmation", desc: "Get voice, text, and notification confirmations" }
+  type Feature = {
+    icon: LucideIcon;
+    title: string;
+    desc: string;
+    details: {
+      title: string;
+      description: string;
+      points: string[];
+      demoImage?: string;
+    };
+  };
+
+  const features: Feature[] = [
+    {
+      icon: Mic,
+      title: "Voice-First Booking",
+      desc: "Natural voice commands for seamless scheduling",
+      details: {
+        title: "Revolutionary Voice Booking",
+        description: "Schedule appointments as naturally as having a conversation",
+        points: [
+          "Natural language processing understands context and intent",
+          "Multiple language support for global accessibility",
+          "Voice confirmation and feedback for clarity",
+          "Hands-free booking perfect for multitasking"
+        ],
+        demoImage: "/voice-booking-demo.png"
+      }
+    },
+    {
+      icon: Brain,
+      title: "AI Understanding",
+      desc: "Smart scheduling powered by advanced AI",
+      details: {
+        title: "Intelligent Scheduling Assistant",
+        description: "Our AI learns your preferences and optimizes schedules",
+        points: [
+          "Learns from your booking patterns and preferences",
+          "Suggests optimal time slots based on history",
+          "Handles complex scheduling conflicts automatically",
+          "Predictive scheduling for recurring appointments"
+        ],
+        demoImage: "/ai-scheduling-demo.png"
+      }
+    },
+    {
+      icon: Route,
+      title: "Smart Travel Planning",
+      desc: "Intelligent travel time calculations",
+      details: {
+        title: "Real-Time Travel Intelligence",
+        description: "Never be late with smart travel planning",
+        points: [
+          "Real-time traffic monitoring and updates",
+          "Automatic buffer time calculations",
+          "Multi-modal transport options",
+          "Weather-aware scheduling adjustments"
+        ],
+        demoImage: "/travel-planning-demo.png"
+      }
+    }
   ];
 
   useEffect(() => {
@@ -53,23 +104,24 @@ const LandingPage = () => {
 
   useEffect(() => {
     const animate = () => {
-      setWaveformData(generateWaveformData(50));
+      setWaveformData(generateWaveformData(40)); // Reduced number of bars for better performance
       animationRef.current = requestAnimationFrame(animate);
     };
     
-    animationRef.current = requestAnimationFrame(animate);
+    // Faster animation frame rate
+    const interval = setInterval(() => {
+      animate();
+    }, 100); // Updates every 100ms
     
     return () => {
+      clearInterval(interval);
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
   }, []);
 
-  const handleVoiceDemo = () => {
-    setIsListening(!isListening);
-    setTimeout(() => setIsListening(false), 3000);
-  };
+  
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
@@ -165,15 +217,22 @@ const LandingPage = () => {
                     {waveformData.map((height, index) => (
                       <motion.div
                         key={index}
-                        className="h-full w-[2px] bg-white/50"
+                        className="h-full w-[3px] bg-white/50" // Increased width
                         initial={{ scaleY: 0 }}
                         animate={{ 
                           scaleY: height,
-                          backgroundColor: `rgba(255, 255, 255, ${height * 0.8})`
+                          backgroundColor: `rgba(255, 255, 255, ${height * 0.9})`,
                         }}
                         transition={{
-                          duration: 0.5,
-                          ease: "easeInOut"
+                          duration: 0.2, // Faster animation
+                          ease: "easeOut",
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          repeatDelay: Math.random() * 0.2 // Random delay for more natural look
+                        }}
+                        style={{
+                          transformOrigin: "bottom",
+                          margin: "0 1px" // Add small gap between bars
                         }}
                       />
                     ))}
@@ -198,7 +257,7 @@ const LandingPage = () => {
                 Start Free Trial
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold transition-all duration-300">
+              <Button variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white px-8 py-4 text-lg font-semibold transition-all duration-300">
                 <Play className="mr-2 w-5 h-5" />
                 Watch Demo
               </Button>
@@ -207,84 +266,97 @@ const LandingPage = () => {
         </div>
       </div>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-6 relative">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Revolutionary Features
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Experience the future of appointment scheduling with AI-powered automation and intelligence
-            </p>
-          </div>
-
-          {/* Dynamic Feature Showcase */}
-          <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
-            <div className="space-y-8">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <Card 
+      {/* Revolutionary Features Section */}
+      <section className="py-20 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Left Side - Feature List */}
+            <div className="space-y-6">
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-8">
+                Revolutionary Features
+              </h2>
+              
+              <div className="space-y-4">
+                {features.map((feature, index) => (
+                  <motion.div
                     key={index}
-                    className={`bg-white/5 border-white/10 transition-all duration-500 transform hover:scale-105 cursor-pointer ${
-                      currentFeature === index ? 'bg-white/10 border-white/20 shadow-2xl' : ''
+                    className={`p-6 rounded-xl cursor-pointer transition-all duration-300 ${
+                      selectedFeature === index 
+                        ? 'bg-white/10 border border-white/20' 
+                        : 'hover:bg-white/5'
                     }`}
+                    onClick={() => setSelectedFeature(index)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className={`p-3 rounded-lg transition-all duration-300 ${
-                          currentFeature === index ? 'bg-white text-black' : 'bg-white/10 text-white'
-                        }`}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                          <p className="text-gray-400">{feature.desc}</p>
-                        </div>
+                    <div className="flex items-start space-x-4">
+                      <div className={`p-3 rounded-lg ${
+                        selectedFeature === index 
+                          ? 'bg-white text-black' 
+                          : 'bg-white/10'
+                      }`}>
+                        <feature.icon className="w-6 h-6" />
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-3xl p-8 backdrop-blur-xl border border-white/10 shadow-2xl">
-                <div className="text-center space-y-6">
-                  <div className="w-20 h-20 mx-auto bg-white rounded-2xl flex items-center justify-center">
-                    {React.createElement(features[currentFeature].icon, { className: "w-10 h-10 text-black" })}
-                  </div>
-                  <h3 className="text-2xl font-bold text-white">{features[currentFeature].title}</h3>
-                  <p className="text-gray-300 text-lg">{features[currentFeature].desc}</p>
-                </div>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                        <p className="text-gray-400">{feature.desc}</p>
+                      </div>
+                    </div>
+                    <br /><br /><br /><br />
+                  </motion.div>
+                ))}
               </div>
             </div>
-          </div>
 
-          {/* Feature Grid */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Shield, title: "Enterprise Security", desc: "Bank-grade encryption and privacy protection" },
-              { icon: Users, title: "Multi-Business Support", desc: "Manage multiple locations and service types" },
-              { icon: Bot, title: "Smart Conflict Resolution", desc: "AI automatically handles scheduling conflicts" },
-              { icon: Clock, title: "Real-Time Updates", desc: "Instant notifications for all changes" },
-              { icon: MapPin, title: "Location Intelligence", desc: "GPS-aware scheduling with travel optimization" },
-              { icon: CheckCircle, title: "99.9% Uptime", desc: "Reliable service you can count on" }
-            ].map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card key={index} className="bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-12 h-12 mx-auto mb-4 bg-white/10 rounded-lg flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                    <p className="text-gray-400">{feature.desc}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {/* Right Side - Feature Details */}
+            <div className="relative">
+              <motion.div
+                key={selectedFeature}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+                className="bg-white/5 rounded-2xl p-8 border border-white/10 backdrop-blur-xl"
+              >
+                <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  {features[selectedFeature].details.title}
+                </h3>
+                
+                <p className="text-lg text-gray-300 mb-6">
+                  {features[selectedFeature].details.description}
+                </p>
+
+                <div className="space-y-4 mb-8">
+                  {features[selectedFeature].details.points.map((point, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center space-x-3"
+                    >
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                      <p className="text-gray-400">{point}</p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {features[selectedFeature].details.demoImage && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="rounded-xl overflow-hidden"
+                  >
+                    <img
+                      src={features[selectedFeature].details.demoImage}
+                      alt={features[selectedFeature].title}
+                      className="w-full h-auto"
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -387,7 +459,7 @@ const LandingPage = () => {
       <Footer />
       
       {/* 3D Floating Elements */}
-      <div className="fixed inset-0 pointer-events-none">
+      {/* <div className="fixed inset-0 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
@@ -407,7 +479,7 @@ const LandingPage = () => {
             }}
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };

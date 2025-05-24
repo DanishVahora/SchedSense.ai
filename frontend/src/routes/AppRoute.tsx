@@ -1,3 +1,4 @@
+import BookAppointmentPage from '@/pages/BookAppointment';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import SignUpPage from '@/pages/SignUpPage';
@@ -9,6 +10,8 @@ export const AppRoute = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<SignUpPage/>}/>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/book-appointment" element={<BookAppointmentPage />} />
+      
     </Routes>
   )
 }

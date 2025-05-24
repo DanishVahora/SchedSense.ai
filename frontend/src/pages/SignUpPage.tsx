@@ -9,22 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   User, 
-  Store, 
-  Mail, 
-  Lock, 
-  Phone, 
+  Store,  
   Clock, 
-  MapPin, 
   Bell,
   Camera,
-  Globe,
-  CreditCard,
   Upload,
-  ArrowLeft,
   CheckCircle,
   Building,
   Users,
-  Calendar
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
