@@ -31,6 +31,7 @@ class IntentRecognizer {
         this.locationKeywords = ['near', 'close to', 'location', 'address'];
         this.durationRegex = /(\d+)\s*(minute|hour|min|hr)s?/gi;
         this.providerRegex = /(?:with|dr\.?)\s+([a-zA-Z\s]+)/i;
+
     }
 
     async recognizeIntent(transcribedText) {
@@ -41,6 +42,7 @@ class IntentRecognizer {
             serviceType: this.extractServiceType(normalizedText),
             timePreference: this.extractTimePreference(normalizedText),
             urgencyLevel: this.extractFromKeywords(normalizedText, this.urgencyIndicators, 'medium'),
+
             additionalInfo: this.extractAdditionalInfo(normalizedText),
             confidence: 0
         };
@@ -86,6 +88,7 @@ class IntentRecognizer {
                     timeInfo.day = expressions.find(day => this.containsWord(text, day));
                 } else if (period === 'time_periods') {
                     timeInfo.period = expressions.find(period => this.containsWord(text, period));
+
                 } else {
                     timeInfo.relative = period;
                 }
@@ -108,12 +111,9 @@ class IntentRecognizer {
         }
 
         const durationMatch = text.match(this.durationRegex);
-        if (durationMatch) {
-            additionalInfo.duration = durationMatch[0];
-        }
-
         if (/with|dr\.?|doctor/.test(text)) {
             const providerMatch = text.match(this.providerRegex);
+
             if (providerMatch) {
                 additionalInfo.preferredProvider = providerMatch[1].trim();
             }
@@ -132,11 +132,15 @@ class IntentRecognizer {
         let confidence = 0;
         confidence += intent.action !== 'book' ? 0.2 : 0.1;
         confidence += intent.serviceType !== 'general' ? 0.3 : 0.1;
+
         if (intent.timePreference.day || intent.timePreference.time ||
             intent.timePreference.period || intent.timePreference.relative) {
             confidence += 0.3;
         }
         confidence += intent.urgencyLevel !== 'medium' ? 0.2 : 0;
+
+        if (intent.urgencyLevel !== 'medium') confidence += 0.2;
+
         return Math.min(confidence, 1.0);
     }
 

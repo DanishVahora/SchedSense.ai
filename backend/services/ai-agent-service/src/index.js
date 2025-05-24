@@ -5,6 +5,7 @@ const ContextAnalysisService = require('./ContextAnalysisService .js'); // Adjus
 const app = express();
 const port = 3000;
 
+
 app.use(cors()); // Allow frontend requests
 app.use(express.json());
 
