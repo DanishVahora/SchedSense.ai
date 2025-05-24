@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  voice-service:
+    build: ./services/voice-service
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
+  ai-agent-service:
+    build: ./services/ai-agent-service
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+  booking-service:
+    build: ./services/booking-service
+    ports:
+      - "3002:3002"
+    networks:
+      - app-network
+  notification-service:
+    build: ./services/notification-service
+    ports:
+      - "3003:3003"
+    networks:
+      - app-network
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "3004:3004"
+    networks:
+      - app-network
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - voice-service
+      - ai-agent-service
+      - booking-service
+      - notification-service
+      - user-service
+    networks:
+      - app-network
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appointment_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
+volumes:
+  postgres_data:
