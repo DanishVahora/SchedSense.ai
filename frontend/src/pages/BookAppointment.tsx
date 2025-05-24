@@ -20,6 +20,7 @@ import {
   Clock,
   User
 } from 'lucide-react';
+import WavEncoder from 'wav-encoder';
 
 interface RecordingSession {
   id: string;
@@ -76,60 +77,65 @@ const BookAppointment = () => {
 
   const startRecording = async () => {
     try {
-      setError(null);
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 44100
-        } 
-      });
+        setError(null);
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+                sampleRate: 44100
+            } 
+        });
 
-      // Check if WAV is supported, fallback to webm
-      const mimeType = MediaRecorder.isTypeSupported('audio/wav') 
-        ? 'audio/wav' 
-        : 'audio/webm';
-
-      mediaRecorder.current = new MediaRecorder(stream, { mimeType });
-      
-      mediaRecorder.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-        const url = URL.createObjectURL(audioBlob);
+        const mimeType = 'audio/webm'; // Use webm for recording
+        mediaRecorder.current = new MediaRecorder(stream, { mimeType });
         
-        const newRecording: RecordingSession = {
-          id: generateId(),
-          audioURL: url,
-          audioBlob: audioBlob,
-          transcript: '',
-          timestamp: new Date(),
-          duration: recordingDuration,
-          status: 'processing'
+        mediaRecorder.current.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                audioChunks.current.push(event.data);
+            }
         };
 
-        setCurrentRecording(newRecording);
-        setRecordings(prev => [newRecording, ...prev]);
-        audioChunks.current = [];
-        
-        // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
-        
-        await processAudio(audioBlob, newRecording.id);
-      };
+        mediaRecorder.current.onstop = async () => {
+            const audioBlob = new Blob(audioChunks.current, { type: mimeType });
+            const arrayBuffer = await audioBlob.arrayBuffer();
+            const audioBuffer = await new AudioContext().decodeAudioData(arrayBuffer);
 
-      mediaRecorder.current.start(1000); // Collect data every second
-      setIsRecording(true);
+            // Convert to WAV using wav-encoder
+            const wavData = await WavEncoder.encode({
+                sampleRate: audioBuffer.sampleRate,
+                channelData: [audioBuffer.getChannelData(0)]
+            });
+
+            const wavBlob = new Blob([wavData], { type: 'audio/wav' });
+            const url = URL.createObjectURL(wavBlob);
+            
+            const newRecording: RecordingSession = {
+                id: generateId(),
+                audioURL: url,
+                audioBlob: wavBlob,
+                transcript: '',
+                timestamp: new Date(),
+                duration: recordingDuration,
+                status: 'processing'
+            };
+
+            setCurrentRecording(newRecording);
+            setRecordings(prev => [newRecording, ...prev]);
+            audioChunks.current = [];
+            
+            stream.getTracks().forEach(track => track.stop());
+            
+            await processAudio(wavBlob, newRecording.id);
+        };
+
+        mediaRecorder.current.start(1000); // Collect data every second
+        setIsRecording(true);
     } catch (error) {
-      console.error("Error starting recording:", error);
-      setError("Unable to access microphone. Please check permissions.");
+        console.error("Error starting recording:", error);
+        setError("Unable to access microphone. Please check permissions.");
     }
-  };
+};
 
   const stopRecording = () => {
     if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
