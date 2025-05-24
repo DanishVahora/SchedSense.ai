@@ -10,6 +10,7 @@ class User {
                 password VARCHAR(255) NOT NULL,
                 first_name VARCHAR(50),
                 last_name VARCHAR(50),
+                role VARCHAR(20) NOT NULL DEFAULT 'customer',
                 is_active BOOLEAN DEFAULT true,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -41,19 +42,19 @@ class User {
     }
 
     static async findById(id) {
-        const query = 'SELECT id, username, email, first_name, last_name, is_active, created_at, updated_at FROM users WHERE id = $1';
+        const query = 'SELECT id, username, email, first_name, last_name, role, is_active, created_at, updated_at FROM users WHERE id = $1';
         const result = await pool.query(query, [id]);
         return result.rows[0];
     }
 
     static async create(userData) {
-        const { username, email, password, firstName, lastName } = userData;
+        const { username, email, password, firstName, lastName, role } = userData;
         const query = `
-            INSERT INTO users (username, email, password, first_name, last_name)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, username, email, first_name, last_name, created_at
+            INSERT INTO users (username, email, password, first_name, last_name, role)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING id, username, email, first_name, last_name, role, created_at
         `;
-        const values = [username, email, password, firstName, lastName];
+        const values = [username, email, password, firstName, lastName, role];
         const result = await pool.query(query, values);
         return result.rows[0];
     }
@@ -82,7 +83,7 @@ class User {
             UPDATE users
             SET ${fields.join(', ')}
             WHERE id = $${paramCount}
-            RETURNING id, username, email, first_name, last_name, is_active, updated_at
+            RETURNING id, username, email, first_name, last_name, role, is_active, updated_at
         `;
 
         const result = await pool.query(query, values);
@@ -97,7 +98,7 @@ class User {
 
     static async findAll(limit = 10, offset = 0) {
         const query = `
-            SELECT id, username, email, first_name, last_name, is_active, created_at, updated_at
+            SELECT id, username, email, first_name, last_name, role, is_active, created_at, updated_at
             FROM users
             ORDER BY created_at DESC
             LIMIT $1 OFFSET $2

@@ -4,13 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  User,
-  Lock,
-  LogIn,
-  Store
-} from 'lucide-react';
+import { User, Lock, LogIn, Store } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
@@ -19,7 +13,6 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false,
     role: 'customer' // Default role
   });
 
@@ -35,16 +28,38 @@ const LoginPage = () => {
     }));
     setFloatingParticles(particles);
   }, []);
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log('Login attempt:', formData);
-    }, 1500);
+
+    // Prepare form data
+    const { email, password, role } = formData;
+    const loginData = { email, password, role };
+
+    try {
+        const response = await fetch('http://localhost:3004/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(loginData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Login failed:', errorData);
+            throw new Error('Login failed');
+        }
+
+        const data = await response.json();
+        console.log('Login successful:', data);
+        // Handle successful login (e.g., store token, redirect)
+    } catch (error) {
+        console.error('Error during login:', error);
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -189,27 +204,6 @@ const LoginPage = () => {
                           />
                         </div>
                       </div>
-                    </div>
-
-                    {/* Remember Me & Forgot Password */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="remember"
-                          checked={formData.rememberMe}
-                          onCheckedChange={(checked) => 
-                            setFormData({ ...formData, rememberMe: checked as boolean })
-                          }
-                          className="border-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
-                        />
-                        <Label htmlFor="remember" className="text-sm text-gray-300">
-                          Remember me
-                        </Label>
-                      </div>
-                      
-                      <a href="/forgot-password" className="text-sm text-white hover:underline">
-                        Forgot password?
-                      </a>
                     </div>
 
                     {/* Submit Button */}
