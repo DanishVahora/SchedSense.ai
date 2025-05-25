@@ -1,15 +1,14 @@
-import React from 'react';
 import BookAppointmentPage from '@/pages/customer/BookAppointment';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import SignUpPage from '@/pages/SignUpPage';
-import {Routes, Route, Navigate} from 'react-router-dom';
+import {Routes, Route} from 'react-router-dom';
 import ProviderDashboard from '@/pages/provider/ProviderDashboard';
 import CustomerDashboard  from '@/pages/customer/CustomerDashboard';
-const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
-    const token = localStorage.getItem('token');
-    return token ? children : <Navigate to="/login" />;
-};
+// const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
+//     const token = localStorage.getItem('token');
+//     return token ? children : <Navigate to="/login" />;
+// };
 
 export const AppRoute = () => {
     return (
@@ -21,17 +20,17 @@ export const AppRoute = () => {
             <Route
                 path="/CustomerDashboard"
                 element={
-                    <ProtectedRoute>
+                    // <ProtectedRoute>
                         <CustomerDashboard />
-                    </ProtectedRoute>
+                    /* </ProtectedRoute> */
                 }
             />
             <Route
                 path="/ProviderDashboard"
                 element={
-                    <ProtectedRoute>
+                    // <ProtectedRoute>
                         <ProviderDashboard />
-                    </ProtectedRoute>
+                    // </ProtectedRoute>
                 }
             />
         </Routes>
