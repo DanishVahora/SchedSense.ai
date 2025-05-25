@@ -15,17 +15,12 @@
 
 **An intelligent scheduling platform powered by AI to optimize your time and productivity**
 
-[Key Features](#key-features) • [Demo](#live-demo) • [Installation](#installation) • [Usage](#usage) • [API](#api) • [Contributing](#contributing) • [License](#license)
-
-</div>
 
 ## 🌟 Overview
 
 SchedSense.ai is an intelligent scheduling and time management platform that leverages artificial intelligence to help individuals and teams optimize their schedules. By analyzing patterns, preferences, and priorities, SchedSense.ai provides smart scheduling recommendations to maximize productivity and work-life balance.
 
-<div align="center">
-  <img src="assets/screenshot.png" alt="SchedSense.ai Dashboard" width="80%">
-</div>
+
 
 ## ✨ Key Features
 
@@ -201,9 +196,7 @@ Get comprehensive insights about your time usage with our analytics dashboard:
 - Meeting efficiency metrics
 - Work pattern analysis
 
-<div align="center">
-  <img src="assets/analytics.png" alt="SchedSense.ai Analytics" width="70%">
-</div>
+
 
 ## 🧠 AI Features
 
