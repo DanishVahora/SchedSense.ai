@@ -57,7 +57,7 @@ const SignupPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { username, email, password, firstName, lastName } = formData;
-    
+
     // Ensure all required fields are present
     if (!username || !email || !password || !firstName || !lastName) {
         console.error('All fields are required');
@@ -67,7 +67,7 @@ const SignupPage = () => {
     console.log('Form data:', formData);
 
     try {
-        const response = await fetch('http://localhost:3004/api/auth/register', {
+        const response = await fetch('http://localhost:3004/api/user/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ const SignupPage = () => {
   const updateService = (index: number, field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      servicesOffered: prev.servicesOffered.map((service, i) => 
+      servicesOffered: prev.servicesOffered.map((service, i) =>
         i === index ? { ...service, [field]: value } : service
       )
     }));
@@ -132,7 +132,7 @@ const SignupPage = () => {
 
       <div className="relative z-10">
         <Navbar />
-        
+
         <div className="px-6 py-12">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
@@ -197,13 +197,13 @@ const SignupPage = () => {
                   )}
                 </CardTitle>
                 <CardDescription className="text-gray-400">
-                  {userType === 'customer' 
+                  {userType === 'customer'
                     ? 'Create your account to start booking appointments with voice commands'
                     : 'Register your business to offer voice-powered appointment scheduling'
                   }
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-8">
                   {userType === 'customer' ? (
@@ -215,7 +215,7 @@ const SignupPage = () => {
                           <User className="w-5 h-5 mr-2" />
                           Basic Information
                         </h3>
-                        
+
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-2">
                             <Label htmlFor="username" className="text-white">Username *</Label>
@@ -228,7 +228,7 @@ const SignupPage = () => {
                               required
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="email" className="text-white">Email Address *</Label>
                             <Input
@@ -256,7 +256,7 @@ const SignupPage = () => {
                               required
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="first_name" className="text-white">First Name *</Label>
                             <Input
@@ -292,7 +292,7 @@ const SignupPage = () => {
                           <Building className="w-5 h-5 mr-2" />
                           Business Information
                         </h3>
-                        
+
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-2">
                             <Label htmlFor="businessName" className="text-white">Business Name *</Label>
@@ -305,7 +305,7 @@ const SignupPage = () => {
                               required
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="contactPersonName" className="text-white">Contact Person Name *</Label>
                             <Input
@@ -332,7 +332,7 @@ const SignupPage = () => {
                               required
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="password" className="text-white">Password *</Label>
                             <Input
@@ -360,7 +360,7 @@ const SignupPage = () => {
                               required
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="timeZone" className="text-white">Time Zone *</Label>
                             <Select onValueChange={(value) => handleInputChange('timeZone', value)}>
@@ -397,7 +397,7 @@ const SignupPage = () => {
                           <Clock className="w-5 h-5 mr-2" />
                           Business Hours & Services
                         </h3>
-                        
+
                         <div className="space-y-2">
                           <Label htmlFor="workingHours" className="text-white">Working Hours *</Label>
                           <Input
@@ -421,7 +421,7 @@ const SignupPage = () => {
                               Add Service
                             </Button>
                           </div>
-                          
+
                           {formData.servicesOffered.map((service, index) => (
                             <Card key={index} className="bg-white/5 border-white/10">
                               <CardContent className="p-4">
@@ -482,7 +482,7 @@ const SignupPage = () => {
                               required
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="minimumNoticeTime" className="text-white">Minimum Notice Time *</Label>
                             <Input
@@ -503,7 +503,7 @@ const SignupPage = () => {
                           <Upload className="w-5 h-5 mr-2" />
                           Optional Information
                         </h3>
-                        
+
                         <div className="space-y-6">
                           <div className="space-y-2">
                             <Label htmlFor="businessLicense" className="text-white">Business License/ID Upload</Label>
@@ -569,7 +569,7 @@ const SignupPage = () => {
                       <CheckCircle className="w-5 h-5 mr-2" />
                       Create Account
                     </Button>
-                    
+
                     <p className="text-center text-gray-400 mt-4">
                       Already have an account?{' '}
                       <a href="/login" className="text-white hover:underline">

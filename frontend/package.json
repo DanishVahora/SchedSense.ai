@@ -29,6 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.12.2",
+    "frontend": "file:",
     "lucide-react": "^0.511.0",
     "react": "^18.2.0",
     "react-audio-visualize": "^1.1.1",

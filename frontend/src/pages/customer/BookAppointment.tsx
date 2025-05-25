@@ -5,14 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Mic, 
-  Play, 
-  Square, 
-  Upload, 
-  Trash2, 
-  Download, 
-  Volume2, 
+import {
+  Mic,
+  Play,
+  Square,
+  Upload,
+  Trash2,
+  Download,
+  Volume2,
   Loader2,
   CheckCircle,
   XCircle,
@@ -41,7 +41,7 @@ const BookAppointment = () => {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   // Add Siri wave states
   const [waveAmplitude, setWaveAmplitude] = useState(0.1);
   const [audioLevel, setAudioLevel] = useState(0);
@@ -60,13 +60,13 @@ const BookAppointment = () => {
 
     const dataArray = new Uint8Array(analyser.current.frequencyBinCount);
     analyser.current.getByteFrequencyData(dataArray);
-    
+
     const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
     const normalizedLevel = average / 255;
-    
+
     setAudioLevel(normalizedLevel);
     setWaveAmplitude(normalizedLevel * 3 + 0.1); // Scale amplitude for visual effect
-    
+
     if (isRecording) {
       animationFrame.current = requestAnimationFrame(monitorAudioLevel);
     }
@@ -103,13 +103,13 @@ const BookAppointment = () => {
   const startRecording = async () => {
     try {
         setError(null);
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
                 autoGainControl: true,
                 sampleRate: 44100
-            } 
+            }
         });
 
         // Set up audio analysis for Siri wave
@@ -118,13 +118,13 @@ const BookAppointment = () => {
         analyser.current = audioContext.current.createAnalyser();
         analyser.current.fftSize = 256;
         source.connect(analyser.current);
-        
+
         // Start monitoring audio level
         monitorAudioLevel();
 
         const mimeType = 'audio/webm';
         mediaRecorder.current = new MediaRecorder(stream, { mimeType });
-        
+
         mediaRecorder.current.ondataavailable = (event) => {
             if (event.data.size > 0) {
                 audioChunks.current.push(event.data);
@@ -143,7 +143,7 @@ const BookAppointment = () => {
 
             const wavBlob = new Blob([wavData], { type: 'audio/wav' });
             const url = URL.createObjectURL(wavBlob);
-            
+
             const newRecording: RecordingSession = {
                 id: generateId(),
                 audioURL: url,
@@ -157,9 +157,9 @@ const BookAppointment = () => {
             setCurrentRecording(newRecording);
             setRecordings(prev => [newRecording, ...prev]);
             audioChunks.current = [];
-            
+
             stream.getTracks().forEach(track => track.stop());
-            
+
             // Clean up audio analysis
             if (animationFrame.current) {
               cancelAnimationFrame(animationFrame.current);
@@ -168,7 +168,7 @@ const BookAppointment = () => {
               audioContext.current.close();
             }
             setWaveAmplitude(0.1);
-            
+
             await processAudio(wavBlob, newRecording.id);
         };
 
@@ -184,7 +184,7 @@ const BookAppointment = () => {
     if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
       mediaRecorder.current.stop();
       setIsRecording(false);
-      
+
       // Clean up audio monitoring
       if (animationFrame.current) {
         cancelAnimationFrame(animationFrame.current);
@@ -198,11 +198,11 @@ const BookAppointment = () => {
 
     try {
       const wavBlob = await convertToWav(audioBlob);
-      
+
       const formData = new FormData();
       formData.append('audio', wavBlob, 'recording.wav');
 
-      const response = await fetch('http://localhost:8000/api/speech-to-text/', {
+      const response = await fetch('http://localhost/api/speech-to-text/api/speech-to-text/', {
         method: 'POST',
         body: formData,
       });
@@ -212,10 +212,10 @@ const BookAppointment = () => {
       }
 
       const data = await response.json();
-      
-      setRecordings(prev => 
-        prev.map(recording => 
-          recording.id === recordingId 
+
+      setRecordings(prev =>
+        prev.map(recording =>
+          recording.id === recordingId
             ? { ...recording, transcript: data.transcript, status: 'completed' }
             : recording
         )
@@ -228,10 +228,10 @@ const BookAppointment = () => {
     } catch (error) {
       console.error("Error processing audio:", error);
       setError("Failed to process audio. Please try again. Make sure the API server is running on port 8000.");
-      
-      setRecordings(prev => 
-        prev.map(recording => 
-          recording.id === recordingId 
+
+      setRecordings(prev =>
+        prev.map(recording =>
+          recording.id === recordingId
             ? { ...recording, status: 'error' }
             : recording
         )
@@ -260,7 +260,7 @@ const BookAppointment = () => {
 
     setError(null);
     const url = URL.createObjectURL(file);
-    
+
     const newRecording: RecordingSession = {
       id: generateId(),
       audioURL: url,
@@ -273,7 +273,7 @@ const BookAppointment = () => {
 
     setCurrentRecording(newRecording);
     setRecordings(prev => [newRecording, ...prev]);
-    
+
     await processAudio(file, newRecording.id);
   };
 
@@ -293,7 +293,7 @@ const BookAppointment = () => {
       }
       return prev.filter(r => r.id !== id);
     });
-    
+
     if (currentRecording?.id === id) {
       setCurrentRecording(null);
     }
@@ -348,7 +348,7 @@ const BookAppointment = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
-              
+
               {/* Siri Wave Visualization */}
               <div className="mb-6">
                 <div className="h-32 relative overflow-hidden rounded-lg bg-black/30 flex items-center justify-center">
@@ -367,17 +367,17 @@ const BookAppointment = () => {
                       pixelDepth={0.02}
                       lerpSpeed={0.01}
                     />
-                    
+
                     {/* Overlay gradient */}
                     <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20 pointer-events-none" />
-                    
+
                     {/* Recording status indicator */}
                     <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className={`${
-                          isRecording 
-                            ? 'bg-red-500/20 text-red-200 border-red-400/60' 
+                          isRecording
+                            ? 'bg-red-500/20 text-red-200 border-red-400/60'
                             : 'bg-gray-500/20 text-gray-200 border-gray-400/60'
                         } px-3 py-1`}
                       >
@@ -418,8 +418,8 @@ const BookAppointment = () => {
                   disabled={isProcessing}
                   size="lg"
                   className={`${
-                    isRecording 
-                      ? 'bg-red-500 hover:bg-red-600 shadow-red-500/25' 
+                    isRecording
+                      ? 'bg-red-500 hover:bg-red-600 shadow-red-500/25'
                       : 'bg-green-500 hover:bg-green-600 shadow-green-500/25'
                   } text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg`}
                 >
@@ -469,7 +469,7 @@ const BookAppointment = () => {
                   </div>
                   {uploadProgress > 0 && (
                     <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-blue-400 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
