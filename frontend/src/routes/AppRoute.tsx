@@ -5,7 +5,6 @@ import LoginPage from '@/pages/LoginPage';
 import SignUpPage from '@/pages/SignUpPage';
 import {Routes, Route, Navigate} from 'react-router-dom';
 import ProviderDashboard from '@/pages/provider/ProviderDashboard';
-import ManageServices from '@/pages/provider/ManageService';
 import CustomerDashboard  from '@/pages/customer/CustomerDashboard';
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
     const token = localStorage.getItem('token');

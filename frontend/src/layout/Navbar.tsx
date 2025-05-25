@@ -23,13 +23,13 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    // Remove the token from localStorage
-    localStorage.removeItem('token');
+  // const handleLogout = () => {
+  //   // Remove the token from localStorage
+  //   localStorage.removeItem('token');
 
-    // Redirect to login page
-    window.location.href = '/login';
-  };
+  //   // Redirect to login page
+  //   window.location.href = '/login';
+  // };
 
   return (
     <motion.nav

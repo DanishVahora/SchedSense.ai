@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Volume2, Calendar, User, Clock, LogOut } from 'lucide-react';
+import { Volume2, Calendar, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';

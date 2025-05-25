@@ -8,11 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { User, Store, CheckCircle, Building, Users, Clock, Upload } from 'lucide-react';
-import Navbar from '@/layout/Navbar';
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast'; // Import react-hot-toast
 
 const SignupPage = () => {
   const [userType, setUserType] = useState<'customer' | 'provider'>('customer');
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -40,7 +41,7 @@ const SignupPage = () => {
     if (token) {
         navigate('/CustomerDashboard');
     }
-}, [navigate]);
+  }, [navigate]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -64,17 +65,26 @@ const SignupPage = () => {
     }
   };
 
+  // Updated handleSubmit with toast notifications
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { username, email, password, firstName, lastName } = formData;
 
     // Ensure all required fields are present
     if (!username || !email || !password || !firstName || !lastName) {
-        console.error('All fields are required');
+        toast.error('All fields are required', {
+          duration: 5000, // 5 seconds
+          position: 'top-center',
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '10px',
+          },
+        });
         return;
     }
 
-    console.log('Form data:', formData);
+    setIsSubmitting(true);
 
     try {
         const response = await fetch('http://localhost:3004/api/auth/register', {
@@ -92,13 +102,28 @@ const SignupPage = () => {
             }),
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Registration failed:', errorData);
-            throw new Error('Registration failed');
+            // Show error toast with the specific error from backend
+            toast.error(data.message || 'Registration failed. Please try again.', {
+                duration: 5000,
+                position: 'top-center',
+                style: {
+                    background: '#333',
+                    color: '#fff',
+                    borderRadius: '10px',
+                }
+            });
+            throw new Error(data.message || 'Registration failed');
         }
 
-        const data = await response.json();
+        // Show success toast
+        toast.success('Registration successful!', {
+            duration: 3000,
+            position: 'top-center',
+        });
+
         console.log('Registration successful:', data);
 
         // Save the JWT token in local storage
@@ -108,8 +133,10 @@ const SignupPage = () => {
         window.location.href = '/CustomerDashboard';
     } catch (error) {
         console.error('Error during registration:', error);
+    } finally {
+        setIsSubmitting(false);
     }
-};
+  };
 
   const addService = () => {
     setFormData(prev => ({
@@ -136,6 +163,9 @@ const SignupPage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Add Toaster component to display toasts */}
+      <Toaster />
+      
       {/* Background Effects */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
@@ -152,7 +182,7 @@ const SignupPage = () => {
             {/* Header */}
             <div className="text-center mb-12">
               <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-all duration-300">
-                🚀 Join SchedSense.ai
+                🚀 Join VoiceSched.ai
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 Create Your Account
@@ -579,9 +609,22 @@ const SignupPage = () => {
                     <Button
                       type="submit"
                       className="w-full bg-white text-black hover:bg-gray-100 py-4 text-lg font-semibold transition-all duration-300 transform hover:scale-105"
+                      disabled={isSubmitting}
                     >
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Create Account
+                      {isSubmitting ? (
+                        <span className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Creating Account...
+                        </span>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Create Account
+                        </>
+                      )}
                     </Button>
 
                     <p className="text-center text-gray-400 mt-4">

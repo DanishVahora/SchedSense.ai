@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import  { useState, useEffect} from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,25 +12,20 @@ import {
   ArrowRight,
   Route,
   CheckCircle,
-  MessageSquare,
   Clock,
   MapPin,
   User,
-  Phone,
   type LucideIcon
 } from 'lucide-react';
 import Navbar from '@/layout/Navbar';
 import Footer from '@/layout/Footer';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import SiriWave from 'react-siriwave';
 
 const LandingPage = () => {
   const [selectedFeature, setSelectedFeature] = useState<number>(0);
   const [isListening, setIsListening] = useState(false);
-  const [waveAmplitude, setWaveAmplitude] = useState(1);
   const [demoStep, setDemoStep] = useState(0);
-  const [currentDemo, setCurrentDemo] = useState('voice');
   const [waveformData, setWaveformData] = useState<number[]>(Array(32).fill(0.5)); // 32 bars, initial height 0.5
 
   // Simulate waveform data for the hero section
@@ -133,17 +128,8 @@ const LandingPage = () => {
   ];
 
   // Enhanced wave amplitude simulation for dramatic effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Generate much higher amplitude values for dramatic waves
-      const baseAmplitude = isListening ? 4 : 1;
-      const randomMultiplier = Math.random() * 5 + 3; // Range: 3-8
-      setWaveAmplitude(baseAmplitude * randomMultiplier);
-    }, 120); // Even faster updates
-    
-    return () => clearInterval(interval);
-  }, [isListening]);
-
+  // Enhanced wave amplitude simulation for dramatic effect
+  // (Removed unused waveAmplitude effect)
   // More dramatic listening state toggle
   useEffect(() => {
     const interval = setInterval(() => {
@@ -163,50 +149,56 @@ const LandingPage = () => {
     }
   }, [selectedFeature]);
 
-  const renderFeatureDemo = () => {
-    const feature = features[selectedFeature];
-    
-    switch (feature.demoType) {
-      case 'voice':
-        return (
-          <div className="space-y-4">
-            {/* Voice Conversation Demo */}
-            <div className="bg-black/40 rounded-lg p-6 h-64 overflow-y-auto">
-              <h4 className="text-sm font-medium text-gray-400 mb-4">Live Voice Conversation</h4>
-              <div className="space-y-3">
-                {feature.details.demo.conversation.map((msg, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: index <= demoStep ? 1 : 0.3,
-                      y: index <= demoStep ? 0 : 20
-                    }}
-                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.type === 'user' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-700 text-gray-100'
-                    }`}>
-                      <div className="flex items-center space-x-2 mb-1">
-                        {msg.type === 'user' ? (
-                          <User className="w-3 h-3" />
-                        ) : (
-                          <Brain className="w-3 h-3" />
-                        )}
-                        <span className="text-xs font-medium">
-                          {msg.type === 'user' ? 'You' : 'SchedSense AI'}
-                        </span>
+  // Define this at the top-level, outside the component
+  interface ConversationMessage {
+    type: 'user' | 'ai';
+    text: string;
+  }
+  
+    const renderFeatureDemo = () => {
+      const feature = features[selectedFeature];
+      
+      switch (feature.demoType) {
+        case 'voice':
+          return (
+            <div className="space-y-4">
+              {/* Voice Conversation Demo */}
+              <div className="bg-black/40 rounded-lg p-6 h-64 overflow-y-auto">
+                <h4 className="text-sm font-medium text-gray-400 mb-4">Live Voice Conversation</h4>
+                <div className="space-y-3">
+                  {(feature.details.demo.conversation as ConversationMessage[]).map((msg: ConversationMessage, index: number) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ 
+                        opacity: index <= demoStep ? 1 : 0.3,
+                        y: index <= demoStep ? 0 : 20
+                      }}
+                      className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div className={`max-w-xs px-4 py-2 rounded-lg ${
+                        msg.type === 'user' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-gray-700 text-gray-100'
+                      }`}>
+                        <div className="flex items-center space-x-2 mb-1">
+                          {msg.type === 'user' ? (
+                            <User className="w-3 h-3" />
+                          ) : (
+                            <Brain className="w-3 h-3" />
+                          )}
+                          <span className="text-xs font-medium">
+                            {msg.type === 'user' ? 'You' : 'SchedSense AI'}
+                          </span>
+                        </div>
+                        <p className="text-sm">{msg.text}</p>
                       </div>
-                      <p className="text-sm">{msg.text}</p>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
-            
-            {/* Voice Waveform Display */}
+              
+              {/* Voice Waveform Display */}
             <div className="bg-black/40 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-gray-400">Voice Input Analysis</span>
@@ -245,7 +237,7 @@ const LandingPage = () => {
             <div className="bg-black/40 rounded-lg p-6">
               <h4 className="text-sm font-medium text-gray-400 mb-4">AI Processing Dashboard</h4>
               <div className="space-y-3">
-                {feature.details.demo.analysis.map((item, index) => (
+                {feature.details.demo.analysis.map((item: { label: string; value: string; confidence: number }, index: number) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, x: -20 }}

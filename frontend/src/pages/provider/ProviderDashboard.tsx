@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { 
   Bell, 
@@ -19,9 +19,7 @@ import {
   CalendarCheck,
   AlertCircle,
   Activity,
-  Zap,
-  Users,
-  Target
+
 } from 'lucide-react';
 
 type Slot = {
@@ -39,7 +37,7 @@ const ProviderDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [notifications, setNotifications] = useState([
+  const [notifications] = useState([
     { id: 1, type: 'booking', message: 'New appointment booked for 3:00 PM', time: '2 min ago', unread: true },
     { id: 2, type: 'delay', message: 'Traffic delay alert for John Smith', time: '5 min ago', unread: true },
     { id: 3, type: 'cancellation', message: 'Appointment cancelled - Sarah Johnson', time: '15 min ago', unread: false },
@@ -82,9 +80,9 @@ const getStatusColor = (status: string): string => {
     return statusColors[status] || 'bg-gray-500/20 border-gray-400/40 text-gray-200';
 };
 
-interface StatusIconProps {
-    status: string;
-}
+// interface StatusIconProps {
+//     status: string;
+// }
 
 const getStatusIcon = (status: string): JSX.Element => {
     switch (status) {

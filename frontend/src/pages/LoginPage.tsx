@@ -17,6 +17,7 @@ const LoginPage = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null); // State for error messages
   const [floatingParticles, setFloatingParticles] = useState<Array<{ x: number; y: number; size: number }>>([]);
 
   useEffect(() => {
@@ -31,41 +32,43 @@ const LoginPage = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
     setIsLoading(true);
 
     const { email, password, role } = formData;
 
     try {
-        const response = await fetch('http://localhost:3004/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password, role }),
-        });
+      const response = await fetch('http://localhost:3004/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, role }),
+      });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Login failed:', errorData);
-            throw new Error('Login failed');
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || 'Login failed.'); // Display backend error message
+        return;
+      }
 
-        const data = await response.json();
-        console.log('Login successful:', data);
+      const data = await response.json();
+      console.log('Login successful:', data);
 
-        // Save the JWT token in local storage
-        localStorage.setItem('token', data.token);
+      // Save the JWT token in local storage
+      localStorage.setItem('token', data.token);
 
-        // Redirect based on role
-        if (role === 'customer') {
-            window.location.href = '/CustomerDashboard';
-        } else if (role === 'provider') {
-            window.location.href = '/ProviderDashboard';
-        }
+      // Redirect based on role
+      if (role === 'customer') {
+        window.location.href = '/CustomerDashboard';
+      } else if (role === 'provider') {
+        window.location.href = '/ProviderDashboard';
+      }
     } catch (error) {
-        console.error('Error during login:', error);
+      console.error('Error during login:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -150,6 +153,13 @@ const LoginPage = () => {
               <Card className="bg-white/5 border-white/10 backdrop-blur-xl">
                 <CardContent className="p-8">
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Display Error Message */}
+                    {error && (
+                      <div className="bg-red-500 text-white p-3 rounded-md">
+                        {error}
+                      </div>
+                    )}
+
                     {/* Role Selection */}
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <Button

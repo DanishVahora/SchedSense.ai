@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState } from 'react';
 import { 
   Search, 
   MapPin, 
@@ -7,19 +7,11 @@ import {
   Calendar, 
   Clock, 
   Heart,
-  Phone,
-  Share2,
   ChevronDown, 
   ChevronRight,
-  Mic,
   X,
   Grid,
   List,
-  Map,
-  MessageSquare,
-  Users,
-  ArrowRight,
-  CheckCircle
 } from 'lucide-react';
 // Replace Navbar import with CustomerNavbar
 import CustomerNavbar from '@/layout/CustomerNavbar';
