@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![SchedSense.ai Logo](/frontend/public/ai-scheduling-demo.png)
+![SchedSense.ai Logo](/frontend/public/ai-scheduling-demo.png){width=100px}{height=100px}
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-76.4%25-blue)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-14.7%25-green)](https://www.python.org/)
