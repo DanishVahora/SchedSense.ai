@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![SchedSense.ai Logo](assets/frontend/public/travel-planning-demo.png)
+![SchedSense.ai Logo](/travel-planning-demo.png)
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-76.4%25-blue)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-14.7%25-green)](https://www.python.org/)
