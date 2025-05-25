@@ -45,6 +45,14 @@
         - app-network
       restart: unless-stopped
 
+    adminer:
+      image: adminer
+      restart: always
+      ports:
+        - 8015:8080
+      networks:
+        - app-network
+
     pgadmin:
       image: dpage/pgadmin4:latest
       container_name: pgadmin
@@ -71,6 +79,30 @@
         - "8000:8000"
       environment:
         - PYTHONUNBUFFERED=1
+      networks:
+        - app-network
+      restart: unless-stopped
+
+    booking-agent-service:
+      build:
+        context: ./services/booking-agent-service
+        dockerfile: Dockerfile
+      ports:
+        - "8003:8003"
+      environment:
+        - PYTHONUNBUFFERED=1
+        - DB_HOST=postgres_db
+        - DB_PORT=5432
+        - DB_NAME=user_service_db
+        - DB_USER=postgres
+        - DB_PASSWORD=postgres
+        - PROVIDER_DB_HOST=postgres_provider_db
+        - PROVIDER_DB_NAME=service_provider_db
+      depends_on:
+        postgres_db:
+          condition: service_healthy
+        postgres_provider_db:
+          condition: service_healthy
       networks:
         - app-network
       restart: unless-stopped
