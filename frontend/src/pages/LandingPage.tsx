@@ -19,8 +19,8 @@ import {
   Phone,
   type LucideIcon
 } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Navbar from '@/layout/Navbar';
+import Footer from '@/layout/Footer';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import SiriWave from 'react-siriwave';
