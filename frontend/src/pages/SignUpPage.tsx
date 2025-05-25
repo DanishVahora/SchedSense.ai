@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { User, Store, CheckCircle, Building, Users, Clock, Upload } from 'lucide-react';
 import Navbar from '@/layout/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 const SignupPage = () => {
   const [userType, setUserType] = useState<'customer' | 'provider'>('customer');
@@ -31,6 +32,15 @@ const SignupPage = () => {
     timeZone: '',
     notificationChannels: [] as string[],
   });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        navigate('/CustomerDashboard');
+    }
+}, [navigate]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -67,7 +77,7 @@ const SignupPage = () => {
     console.log('Form data:', formData);
 
     try {
-        const response = await fetch('http://localhost:3004/api/user/api/auth/register', {
+        const response = await fetch('http://localhost:3004/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -90,7 +100,12 @@ const SignupPage = () => {
 
         const data = await response.json();
         console.log('Registration successful:', data);
-        // Handle successful registration (e.g., redirect to login)
+
+        // Save the JWT token in local storage
+        localStorage.setItem('token', data.token);
+
+        // Redirect to CustomerDashboard
+        window.location.href = '/CustomerDashboard';
     } catch (error) {
         console.error('Error during registration:', error);
     }
@@ -131,7 +146,6 @@ const SignupPage = () => {
       </div>
 
       <div className="relative z-10">
-        <Navbar />
 
         <div className="px-6 py-12">
           <div className="max-w-4xl mx-auto">

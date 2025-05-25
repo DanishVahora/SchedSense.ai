@@ -33,9 +33,7 @@ const LoginPage = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Prepare form data
     const { email, password, role } = formData;
-    const loginData = { email, password, role };
 
     try {
         const response = await fetch('http://localhost:3004/api/auth/login', {
@@ -43,7 +41,7 @@ const LoginPage = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(loginData),
+            body: JSON.stringify({ email, password, role }),
         });
 
         if (!response.ok) {
@@ -54,7 +52,16 @@ const LoginPage = () => {
 
         const data = await response.json();
         console.log('Login successful:', data);
-        // Handle successful login (e.g., store token, redirect)
+
+        // Save the JWT token in local storage
+        localStorage.setItem('token', data.token);
+
+        // Redirect based on role
+        if (role === 'customer') {
+            window.location.href = '/CustomerDashboard';
+        } else if (role === 'provider') {
+            window.location.href = '/ProviderDashboard';
+        }
     } catch (error) {
         console.error('Error during login:', error);
     } finally {

@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import CustomerNavbar from '@/layout/CustomerNavbar';
+
 import {
   Mic,
   Play,
@@ -310,6 +312,7 @@ const BookAppointment = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      
       {/* Background Effects */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
@@ -318,6 +321,9 @@ const BookAppointment = () => {
           backgroundSize: '30px 30px'
         }} />
       </div>
+
+      <CustomerNavbar/>
+      <br /><br /><br />
 
       <div className="relative z-10 p-6 max-w-6xl mx-auto">
         {/* Header */}
