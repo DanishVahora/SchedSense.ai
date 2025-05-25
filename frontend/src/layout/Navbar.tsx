@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,6 +13,7 @@ const Navbar = () => {
       }}
     >
       <div className="relative z-50 flex items-center justify-between px-6 py-4">
+        {/* Logo Section */}
         <motion.div 
           className="flex items-center space-x-2"
           whileHover={{ scale: 1.05 }}
@@ -26,6 +26,7 @@ const Navbar = () => {
           </span>
         </motion.div>
         
+        {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-8">
           {['Features', 'How It Works', 'Pricing'].map((item) => (
             <motion.a
@@ -38,12 +39,24 @@ const Navbar = () => {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full" />
             </motion.a>
           ))}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center space-x-4">
           <motion.div whileHover={{ scale: 1.05 }}>
             <Button 
               variant="outline" 
               className="border-white/20 bg-white/5 text-white hover:bg-white hover:text-black transition-all duration-300"
             >
-              Get Started
+              Login
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }}>
+            <Button 
+              variant="default"
+              className="bg-white text-black hover:bg-gray-200 transition-all duration-300"
+            >
+              Sign Up
             </Button>
           </motion.div>
         </div>

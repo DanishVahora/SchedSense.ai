@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User, Lock, LogIn, Store } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/layout/Navbar';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 
