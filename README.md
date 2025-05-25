@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![SchedSense.ai Logo](/frontend/public/voice-booking-demo.png){width=20px}{height=20px}
+![SchedSense.ai Logo](/frontend/public/voice-booking-demo.png)
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-76.4%25-blue)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-14.7%25-green)](https://www.python.org/)
