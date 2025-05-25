@@ -48,7 +48,7 @@ const CustomerNavbar = () => {
             <Volume2 className="w-5 h-5 text-black" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
-            VoiceSched.ai
+            SchedSense.ai
           </span>
         </motion.div>
         

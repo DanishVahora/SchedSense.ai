@@ -1,8 +1,36 @@
 import { Button } from '@/components/ui/button';
 import { Volume2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  // Listen for logout events across tabs
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'token' && !event.newValue) {
+        // Token was removed, log out the user
+        window.location.href = '/login';
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    // Remove the token from localStorage
+    localStorage.removeItem('token');
+
+    // Redirect to login page
+    window.location.href = '/login';
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -22,7 +50,7 @@ const Navbar = () => {
             <Volume2 className="w-5 h-5 text-black" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent">
-            VoiceSched.ai
+            SchedSense.ai
           </span>
         </motion.div>
         
@@ -47,6 +75,7 @@ const Navbar = () => {
             <Button 
               variant="outline" 
               className="border-white/20 bg-white/5 text-white hover:bg-white hover:text-black transition-all duration-300"
+              onClick={() => navigate('/login')} // Navigate to Login
             >
               Login
             </Button>
@@ -55,9 +84,19 @@ const Navbar = () => {
             <Button 
               variant="default"
               className="bg-white text-black hover:bg-gray-200 transition-all duration-300"
+              onClick={() => navigate('/register')} // Navigate to Sign Up
             >
               Sign Up
             </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }}>
+            {/* <Button 
+              variant="default"
+              className="bg-red-500 text-white hover:bg-red-600 transition-all duration-300"
+              onClick={handleLogout} // Logout Button
+            >
+              Logout
+            </Button> */}
           </motion.div>
         </div>
       </div>

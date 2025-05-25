@@ -152,7 +152,7 @@ const SignupPage = () => {
             {/* Header */}
             <div className="text-center mb-12">
               <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-all duration-300">
-                🚀 Join VoiceSched.ai
+                🚀 Join SchedSense.ai
               </Badge>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 Create Your Account

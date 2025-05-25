@@ -639,7 +639,7 @@ const LandingPage = () => {
                 ))}
               </div>
               <blockquote className="text-2xl md:text-3xl text-white mb-8 leading-relaxed">
-                "VoiceSched.ai transformed our salon booking process. Clients love the voice booking, 
+                "SchedSense.ai transformed our salon booking process. Clients love the voice booking, 
                 and the travel delay management has reduced no-shows by 80%."
               </blockquote>
               <div className="text-gray-400">
@@ -658,7 +658,7 @@ const LandingPage = () => {
             Ready to Transform Your Business?
           </h2>
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-            Join thousands of businesses already using VoiceSched.ai to streamline their appointment scheduling
+            Join thousands of businesses already using SchedSense.ai to streamline their appointment scheduling
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
