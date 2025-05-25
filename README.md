@@ -1,6 +1,6 @@
 # SchedSense.ai 📅✨
 
-<div align="center">
+<div >
 
 
 <div align="center">
