@@ -50,11 +50,11 @@ class User {
     static async create(userData) {
         const { username, email, password, firstName, lastName, role } = userData;
         const query = `
-            INSERT INTO users (username, email, password, first_name, last_name, role)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING id, username, email, first_name, last_name, role, created_at
+            INSERT INTO users (username, email, password, first_name, last_name)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, username, email, first_name, last_name, created_at
         `;
-        const values = [username, email, password, firstName, lastName, role];
+        const values = [username, email, password, firstName, lastName];
         const result = await pool.query(query, values);
         return result.rows[0];
     }

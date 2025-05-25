@@ -1,4 +1,4 @@
-  services:
+services:
     postgres_db:
       image: postgres:15-alpine
       container_name: user_service_postgres
@@ -209,18 +209,17 @@
           - app-network
         restart: unless-stopped
 
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
-  networks:
-    app-network:
-      driver: bridge
-      ipam:
-        config:
-          - subnet: 172.20.0.0/16
-
-  volumes:
-    postgres_data:
-      driver: local
-    postgres_provider_data:
-      driver: local
-    pgadmin_data:
-      driver: local
+volumes:
+  postgres_data:
+    driver: local
+  postgres_provider_data:
+    driver: local
+  pgadmin_data:
+    driver: local
